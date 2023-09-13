@@ -58,12 +58,12 @@ public class BigInt {
             return secondNum.difference(unsignedNumBigInt);
         } else {
             if (this.isBigger(unsignedNumBigInt)) {
-                this.setVariableValue(this.difference(unsignedNumBigInt).variable);
+                this.variable = this.difference(unsignedNumBigInt).variable;
                 return this;
             }
             StringBuilder result = new StringBuilder(unsignedNumBigInt.difference(this).variable);
             result.insert(0, '-');
-            this.setVariableValue(result.toString());
+            this.variable = result.toString();
             return this;
         }
     }
@@ -94,7 +94,7 @@ public class BigInt {
             result.insert(0, dozen);
         }
 
-        this.setVariableValue(result.toString());
+        this.variable = result.toString();
         return new BigInt(result.toString());
     }
 
@@ -194,7 +194,7 @@ public class BigInt {
             result.deleteCharAt(0);
         }
 
-        this.setVariableValue(result.toString());
+        this.variable = result.toString();
         return new BigInt(result.toString());
     }
 
@@ -426,7 +426,7 @@ public class BigInt {
             result.variable = signedFinalResult.toString();
         }
 
-        this.setVariableValue(result.toString());
+        this.variable = result.toString();
         return result;
     }
 
@@ -515,9 +515,9 @@ public class BigInt {
             semiResult.insert(0, '-');
         }
 
-        this.setVariableValue(semiResult.toString());
+        this.variable = semiResult.toString();
         this.deleteZeroAtFirstPosition();       //previously added 0 for adding every new element to numThatProbablyCanBeDivided, when numThatProbablyCanBeDivided was smaller, than divisor
-        return new BigInt(this.getVariableValue());
+        return new BigInt(this.variable);
     }
 
     public BigInt division(int divisor) {
