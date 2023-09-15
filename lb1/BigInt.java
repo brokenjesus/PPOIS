@@ -29,18 +29,42 @@ public class BigInt {
         boolean isNegative = false;
         StringBuilder result;
 
-        result = new StringBuilder(this.variable);
         if (this.variable.charAt(0) == '-'){
-            result.deleteCharAt(0);
-            isNegative = true;
+         this.deleteMinus();
+         isNegative = true;
         }
 
+        result = new StringBuilder(this.variable);
         while(result.charAt(0) == '0' && result.length() > 1){
             result.deleteCharAt(0);
         }
+        this.variable = result.toString();
 
         if (isNegative){
-            result.insert(0, '-');
+            this.insertMinus();
+        }
+    }
+
+    private void deleteMinus() {
+        StringBuilder unsignedNum = new StringBuilder(this.variable);
+        unsignedNum.deleteCharAt(0);
+        this.variable = unsignedNum.toString();
+    }
+
+    private void insertMinus(){
+        StringBuilder negativeNum = new StringBuilder(this.variable);
+        negativeNum.insert(0, '-');
+        this.variable = negativeNum.toString();
+    }
+
+    private void insetZeroesAtEnd(int count){
+        if (count <= 0){
+            return;
+        }
+
+        StringBuilder result = new StringBuilder(this.variable);
+        for (int i = 0; i<count; i++){
+            result.append('0');
         }
         this.variable = result.toString();
     }
@@ -59,12 +83,12 @@ public class BigInt {
         } else {
             if (this.isBigger(unsignedNumBigInt)) {
                 this.variable = this.difference(unsignedNumBigInt).variable;
-                return this;
+                return new BigInt(this.variable);
             }
-            StringBuilder result = new StringBuilder(unsignedNumBigInt.difference(this).variable);
-            result.insert(0, '-');
-            this.variable = result.toString();
-            return this;
+
+            this.variable = unsignedNumBigInt.difference(this).variable;
+            this.insertMinus();
+            return new BigInt(this.variable);
         }
     }
 
@@ -111,41 +135,27 @@ public class BigInt {
 
 
     private BigInt differenceTwoNegatives(BigInt subtractedNum) {
-        StringBuilder num1 = new StringBuilder(this.variable);
-        num1.deleteCharAt(0);
-        this.variable = num1.toString();
-
-        StringBuilder num2 = new StringBuilder(subtractedNum.variable);
-        num2.deleteCharAt(0);
-        subtractedNum.variable = num2.toString();
-
+        this.deleteMinus();
+        subtractedNum.deleteMinus();
         return subtractedNum.difference(this);
     }
 
     private BigInt differenceSubtractedNumIsNegative(BigInt subtractedNum) {
-        StringBuilder num = new StringBuilder(subtractedNum.variable);
-        num.deleteCharAt(0);
-        BigInt unsignedSecondNum = new BigInt(num.toString());
-        return this.sum(unsignedSecondNum);
+        subtractedNum.deleteMinus();
+        return this.sum(subtractedNum);
     }
 
     private BigInt differenceDecreasingNumIsNegative(BigInt subtractedNum) {
-        StringBuilder num = new StringBuilder(this.variable);
-        num.deleteCharAt(0);
-        BigInt unsignedFirstNum = new BigInt(num.toString());
-        BigInt resultBigInt = unsignedFirstNum.sum(subtractedNum);
-        StringBuilder result = new StringBuilder(resultBigInt.variable);
-        result.insert(0, '-');
-        resultBigInt.variable = result.toString();
-        return resultBigInt;
+        this.deleteMinus();
+        this.sum(subtractedNum);
+        this.insertMinus();
+        return new BigInt(this.variable);
     }
 
     private BigInt differenceDecreasingNumIsSmaller(BigInt subtractedNum) {
         BigInt resultBigIntType = subtractedNum.difference(this);
-        StringBuilder unsignedResult = new StringBuilder(resultBigIntType.variable);
-        unsignedResult.insert(0, "-");
-        resultBigIntType.variable = unsignedResult.toString();
-        return resultBigIntType;
+        resultBigIntType.insertMinus();
+        return new BigInt(resultBigIntType.variable);
     }
 
     public BigInt difference(BigInt subtractedNum) {
@@ -207,44 +217,8 @@ public class BigInt {
         this.variable = this.difference(1).variable;
     }
 
-    private void isBiggerBothNegative(BigInt secondNum) {
-        StringBuilder unsignedFirstNum = new StringBuilder(this.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        this.variable = unsignedFirstNum.toString();
 
-        unsignedFirstNum = new StringBuilder(secondNum.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        secondNum.variable = unsignedFirstNum.toString();
-    }
-
-    public Boolean isBigger(BigInt secondNum) {
-        this.deleteZeroAtFirstPosition();       //deleting 0 at first position e.g. :0123 => 123
-        secondNum.deleteZeroAtFirstPosition();  //deleting 0 at first position e.g. :0123 => 123
-
-        boolean firstNumNegative = this.variable.charAt(0) == '-';
-        boolean secondNumNegative = secondNum.variable.charAt(0) == '-';
-
-        if (firstNumNegative && !secondNumNegative) {
-            return false;
-        }
-
-        if (!firstNumNegative && secondNumNegative) {
-            return true;
-        }
-
-        if (firstNumNegative) {             //if first negative second is negative too, else returned in previous if
-            this.isBiggerBothNegative(secondNum);
-        }
-
-
-        if (this.variable.length() > secondNum.variable.length()){
-            return true;
-        }
-
-        if (this.variable.length() < secondNum.variable.length()) {
-            return false;
-        }
-
+    private Boolean isBiggerCompareNumsWithIdenticalLength(BigInt secondNum, boolean firstNumNegative){
         int countOfDigitsInNums = this.variable.length();
         for (int i = 0, firstDigitThisNum, firstDigitSecondNum; i < countOfDigitsInNums; i++) {
             firstDigitThisNum = this.variable.charAt(i) - '0';
@@ -265,22 +239,7 @@ public class BigInt {
         return false;
     }
 
-    public Boolean isBigger(int secondNum) {
-        BigInt secondNumWithOverriddenType = new BigInt(String.valueOf(secondNum));
-        return isBigger(secondNumWithOverriddenType);
-    }
-
-    private void isSmallerBothNumNegative(BigInt secondNum) {
-        StringBuilder unsignedFirstNum = new StringBuilder(this.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        this.variable = unsignedFirstNum.toString();
-
-        unsignedFirstNum = new StringBuilder(secondNum.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        secondNum.variable = unsignedFirstNum.toString();
-    }
-
-    public Boolean isSmaller(BigInt secondNum) {
+    public Boolean isBigger(BigInt secondNum) {
         this.deleteZeroAtFirstPosition();       //deleting 0 at first position e.g. :0123 => 123
         secondNum.deleteZeroAtFirstPosition();  //deleting 0 at first position e.g. :0123 => 123
 
@@ -288,25 +247,30 @@ public class BigInt {
         boolean secondNumNegative = secondNum.variable.charAt(0) == '-';
 
         if (firstNumNegative && !secondNumNegative) {
+            return false;
+        }
+
+        if (!firstNumNegative && secondNumNegative) {
             return true;
         }
 
-        if (!firstNumNegative && secondNumNegative){
-            return false;
-        }
-
-        if (firstNumNegative) {                 //if first negative second is negative too, else returned in previous if
-            this.isSmallerBothNumNegative(secondNum);
-        }
-
-        if (this.variable.length() > secondNum.variable.length()) {
-            return false;
+        if (this.variable.length() > secondNum.variable.length()){
+            return true;
         }
 
         if (this.variable.length() < secondNum.variable.length()) {
-            return true;
+            return false;
         }
 
+        return this.isBiggerCompareNumsWithIdenticalLength(secondNum, firstNumNegative);
+    }
+
+    public Boolean isBigger(int secondNum) {
+        BigInt secondNumWithOverriddenType = new BigInt(String.valueOf(secondNum));
+        return isBigger(secondNumWithOverriddenType);
+    }
+
+    private Boolean isSmallerCompareNumsWithIdenticalLength(BigInt secondNum, boolean firstNumNegative){
         int countOfDigitsInNums = this.variable.length() - 1;
         for (int i = 0, firstDigitThisNum, firstDigitSecondNum; i <= countOfDigitsInNums; i++) {
             firstDigitThisNum = this.variable.charAt(i) - '0';
@@ -327,6 +291,33 @@ public class BigInt {
         return false;
     }
 
+    public Boolean isSmaller(BigInt secondNum) {
+        this.deleteZeroAtFirstPosition();       //deleting 0 at first position e.g. :0123 => 123
+        secondNum.deleteZeroAtFirstPosition();  //deleting 0 at first position e.g. :0123 => 123
+
+        boolean firstNumNegative = this.variable.charAt(0) == '-';
+        boolean secondNumNegative = secondNum.variable.charAt(0) == '-';
+
+        if (firstNumNegative && !secondNumNegative) {
+            return true;
+        }
+
+        if (!firstNumNegative && secondNumNegative){
+            return false;
+        }
+
+
+        if (this.variable.length() > secondNum.variable.length()) {
+            return false;
+        }
+
+        if (this.variable.length() < secondNum.variable.length()) {
+            return true;
+        }
+
+        return this.isSmallerCompareNumsWithIdenticalLength(secondNum, firstNumNegative);
+    }
+
     public Boolean isSmaller(int secondNum) {
         BigInt secondNumWithOverriddenType = new BigInt(String.valueOf(secondNum));
         return isSmaller(secondNumWithOverriddenType);
@@ -341,43 +332,52 @@ public class BigInt {
         return isEqual(secondNumWithOverriddenType);
     }
 
-    private void multiplyTwoNumsAreNegative(BigInt secondNum) {
-        StringBuilder unsignedFirstNum = new StringBuilder(this.variable);
-        StringBuilder unsignedSecondNum = new StringBuilder(secondNum.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        unsignedSecondNum.deleteCharAt(0);
-        this.variable = unsignedFirstNum.toString();
-        secondNum.variable = unsignedSecondNum.toString();
-    }
-
-    private void multiplyFirstNumIsNegative() {
-        StringBuilder unsignedFirstNum = new StringBuilder(this.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        this.variable = unsignedFirstNum.toString();
-    }
-
-    private void multiplySecondNumIsNegative(BigInt secondNum) {
-        StringBuilder unsignedFirstNum = new StringBuilder(secondNum.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        secondNum.variable = unsignedFirstNum.toString();
-    }
-
-    public BigInt multiply(BigInt secondNum) {
-        boolean isResultNegativeNum = false;
-
+    private boolean multiplyNegativeNums(BigInt secondNum){
         if (this.variable.charAt(0) == '-' && secondNum.variable.charAt(0) == '-') {
-            this.multiplyTwoNumsAreNegative(secondNum);
+            this.deleteMinus();
+            secondNum.deleteMinus();
+            return false;
         }
 
         if (this.variable.charAt(0) == '-') {
-            this.multiplyFirstNumIsNegative();
-            isResultNegativeNum = true;
+            this.deleteMinus();
+            return true;
         }
 
         if (secondNum.variable.charAt(0) == '-') {
-            this.multiplySecondNumIsNegative(secondNum);
-            isResultNegativeNum = true;
+            secondNum.deleteMinus();
+            return true;
         }
+
+        return false;
+    }
+
+    private BigInt multiplyByDigit(int digit){
+        StringBuilder summand = new StringBuilder();
+        int countOfDigitsInFirstNum = this.variable.length();
+        int dozen = 0;
+
+        for (int j = countOfDigitsInFirstNum - 1, lastDigitFirstNum; j >= 0; j--) {
+            lastDigitFirstNum = this.variable.charAt(j) - '0';
+            int resultLastDigit = (lastDigitFirstNum * digit + dozen) % 10;
+            if(lastDigitFirstNum * digit + dozen > 9){
+                dozen = (lastDigitFirstNum * digit + dozen) / 10;
+            }
+            else{
+                dozen = 0;
+            }
+            summand.insert(0, resultLastDigit);
+        }
+
+        if (dozen != 0){
+            summand.insert(0, dozen);
+        }
+
+        return new BigInt(summand.toString());
+    }
+
+    public BigInt multiply(BigInt secondNum) {
+        boolean isResultNegativeNum =  this.multiplyNegativeNums(secondNum);
 
         int countOfDigitsInFirstNum = this.variable.length();
         int countOfDigitsInSecondNum = secondNum.variable.length();
@@ -386,47 +386,20 @@ public class BigInt {
             return secondNum.multiply(this);
         }
 
-        StringBuilder summand = new StringBuilder();
-
         BigInt result = new BigInt();
-
-        int dozen = 0;
 
         for (int i = countOfDigitsInSecondNum - 1, lastDigitSecondNum; i >= 0; i--) {
             lastDigitSecondNum = secondNum.variable.charAt(i) - '0';
-            for (int j = countOfDigitsInFirstNum - 1, lastDigitFirstNum; j >= 0; j--) {
-                lastDigitFirstNum = this.variable.charAt(j) - '0';
-                int resultLastDigit = (lastDigitFirstNum * lastDigitSecondNum + dozen) % 10;
-                if(lastDigitFirstNum * lastDigitSecondNum + dozen > 9){
-                    dozen = (lastDigitFirstNum * lastDigitSecondNum + dozen) / 10;
-                }
-                else{
-                    dozen = 0;
-                }
-                summand.insert(0, resultLastDigit);
-            }
-            for (int k = countOfDigitsInSecondNum - 1; k > i; k--) {
-                summand.insert(summand.length(), "0");
-            }
-            result.sum(new BigInt(summand.toString()));
-            summand.delete(0, summand.length());
-            dozen = (i == 0) ? dozen : 0;
+            BigInt partialResult = this.multiplyByDigit(lastDigitSecondNum);
+            partialResult.insetZeroesAtEnd(countOfDigitsInSecondNum - i - 1);
+            result.sum(partialResult);
         }
-
-        if (dozen != 0) {
-            StringBuilder unsignedFinalResult = new StringBuilder(result.variable);
-            unsignedFinalResult.insert(0, dozen);
-            result.variable = unsignedFinalResult.toString();
-        }
-
 
         if (isResultNegativeNum) {
-            StringBuilder signedFinalResult = new StringBuilder(result.variable);
-            signedFinalResult.insert(0, '-');
-            result.variable = signedFinalResult.toString();
+            result.insertMinus();
         }
 
-        this.variable = result.toString();
+        this.variable = result.variable;
         return result;
     }
 
@@ -435,25 +408,46 @@ public class BigInt {
         return this.multiply(secondNumWithOverriddenType);
     }
 
-    private void divisionTwoNumsAreNegative(BigInt divisor) {
-        StringBuilder unsignedFirstNum = new StringBuilder(this.variable);
-        StringBuilder unsignedSecondNum = new StringBuilder(divisor.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        unsignedSecondNum.deleteCharAt(0);
-        this.variable = unsignedFirstNum.toString();
-        divisor.variable = unsignedSecondNum.toString();
+    private boolean divisionNegativeNums(BigInt divisor){
+        if (this.variable.charAt(0) == '-' && divisor.variable.charAt(0) == '-') {
+            this.deleteMinus();
+            divisor.deleteMinus();
+            return false;
+        }
+
+        if (this.variable.charAt(0) == '-') {
+            this.deleteMinus();
+            return true;
+        }
+
+        if (divisor.variable.charAt(0) == '-') {
+            divisor.deleteMinus();
+            return true;
+        }
+
+
+        return false;
     }
 
-    private void divisionFirstNumIsNegative() {
-        StringBuilder unsignedFirstNum = new StringBuilder(this.variable);
-        unsignedFirstNum.deleteCharAt(0);
-        this.variable = unsignedFirstNum.toString();
+    private String divisionFindNumThatCanBeDivided(BigInt remainder, int digitIndex){
+        BigInt numToDivide = new BigInt();
+        if (!remainder.isEqual(0)){
+            numToDivide.variable = remainder.multiply(10).variable;
+            numToDivide.sum(new BigInt(String.valueOf(this.variable.charAt(digitIndex))));
+        }else{
+            numToDivide.variable = String.valueOf(this.variable.charAt(digitIndex));
+        }
+        return numToDivide.variable;
     }
 
-    private void divisionSecondNumIsNegative(BigInt divisor) {
-        StringBuilder unsignedSecondNum = new StringBuilder(divisor.variable);
-        unsignedSecondNum.deleteCharAt(0);
-        divisor.variable = unsignedSecondNum.toString();
+    private int divisionFindPartialResult(BigInt numToDivide, BigInt divisor, BigInt remainder){
+        int digit = 0;
+        while (numToDivide.isBigger(divisor) || numToDivide.isEqual(divisor)) {
+            numToDivide = numToDivide.difference(divisor);
+            digit++;
+        }
+        remainder.variable = numToDivide.variable;
+        return digit;
     }
 
     public BigInt division(BigInt divisor) {
@@ -461,62 +455,32 @@ public class BigInt {
             throw new ArithmeticException("Division by zero");
         }
 
-        boolean isResultNegativeNum = false;
-
-        if (this.variable.charAt(0) == '-' && divisor.variable.charAt(0) == '-') {
-            this.divisionTwoNumsAreNegative(divisor);
-        }
-
-        if (this.variable.charAt(0) == '-') {
-            this.divisionFirstNumIsNegative();
-            isResultNegativeNum = true;
-        }
-
-        if (divisor.variable.charAt(0) == '-') {
-            this.divisionSecondNumIsNegative(divisor);
-            isResultNegativeNum = true;
-        }
+        boolean isResultNegativeNum = divisionNegativeNums(divisor);
 
         if (divisor.isBigger(this)) {
             return new BigInt("0");
         }
 
         BigInt remainder = new BigInt();
-        StringBuilder semiResult = new StringBuilder();
+        StringBuilder result = new StringBuilder();
         BigInt numToDivide = new BigInt();
-        StringBuilder numThatCanProbablyBeDivided;
 
         for (int i = 0, j = 0; i < this.variable.length(); i++) {
-            numToDivide.variable = String.valueOf(this.variable.charAt(i));
-            numThatCanProbablyBeDivided = new StringBuilder(numToDivide.variable);
-            if (!remainder.isEqual(0)){
-                int remainderIntType = toInt(remainder);
-                int numThatCanProbablyBeDividedIntType = toInt(new BigInt(numThatCanProbablyBeDivided.toString()));
-                numToDivide.variable = String.valueOf(remainderIntType * 10 + numThatCanProbablyBeDividedIntType);
-            }
+            numToDivide.variable = divisionFindNumThatCanBeDivided(remainder, i);
             while (numToDivide.isSmaller(divisor) && i + 1 < this.variable.length()) {
-                numThatCanProbablyBeDivided.insert(numThatCanProbablyBeDivided.length(), this.variable.charAt(i + 1));  //adding next element of dividend
-                semiResult.insert(semiResult.length(), "0");
-                numToDivide.variable = numThatCanProbablyBeDivided.toString();
-                i++;
-
+                numToDivide = numToDivide.multiply(10);
+                numToDivide.sum(new BigInt(divisionFindNumThatCanBeDivided(new BigInt(), i++)));
+                result.append('0');
             }
-
-            while (numToDivide.isBigger(divisor) || numToDivide.isEqual(divisor)) {
-                numToDivide = numToDivide.difference(divisor);
-                j++;
-            }
-            remainder.variable = numToDivide.variable;
-            semiResult.insert(semiResult.length(), j);
-            j = 0;
+            result.append(divisionFindPartialResult(numToDivide, divisor, remainder));
         }
 
+        this.variable = result.toString();
         if (isResultNegativeNum) {
-            semiResult.insert(0, '-');
+            this.insertMinus();
         }
 
-        this.variable = semiResult.toString();
-        this.deleteZeroAtFirstPosition();       //previously added 0 for adding every new element to numThatProbablyCanBeDivided, when numThatProbablyCanBeDivided was smaller, than divisor
+        this.deleteZeroAtFirstPosition();       //previously added 0 for adding every new element to numToDivide, when numToDivide was smaller, than divisor
         return new BigInt(this.variable);
     }
 

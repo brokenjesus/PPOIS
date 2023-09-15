@@ -253,14 +253,14 @@ class BigIntTest {
     }
 
     @Test
-    void testIsBiggerBothNegativeFirstDigitOfFirstNumIsBigger(){
+    void testIsBiggerBothNegativeAndFirstDigitOfFirstNumIsBigger(){
         BigInt a = new BigInt("-9");
         BigInt b = new BigInt("-8");
         assertEquals(false, a.isBigger(b));
     }
 
     @Test
-    void testIsBiggerBothNegativeFirstDigitOfSecondNumIsBigger(){
+    void testIsBiggerBothNegativeAndFirstDigitOfSecondNum(){
         BigInt a = new BigInt("-8");
         BigInt b = new BigInt("-9");
         assertEquals(true, a.isBigger(b));
@@ -349,6 +349,12 @@ class BigIntTest {
     void testIsEqualInt() {
         BigInt firstNum = new BigInt("123");
         assertEquals(false, firstNum.isEqual(5));
+    }
+
+    @Test
+    void testToInt(){
+        BigInt num = new BigInt("123");
+        assertEquals(123, BigInt.toInt(num));
     }
 
     @BeforeEach
