@@ -1,10 +1,11 @@
 package by.lupach.autorent.core;
 
-import java.util.Scanner;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SignUp {
+public class ClientAuthentication {
     private final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@(.+)$";
     private final String PHONE_PATTERN = "^\\+\\d{1,3} \\(\\d{1,3}\\) \\d{3}-\\d{4}$";
     private final String LOCATION_PATTERN = "^[A-Za-z]+, [A-Za-z]+$";
@@ -53,14 +54,53 @@ public class SignUp {
         }
     }
 
-    public SignUp(User user){
+    public ClientAuthentication(){
         db = new DBHandler();
+    }
+
+    public User logOut(User user){
+        user = new User(null, null, null, null, null, null,
+                null, 0, null, 0);
+        return user;
+    }
+
+    public void signUp(User user){
         boolean validUser = signUpValidation(user);
         if (validUser){
             db.addTheUser(user);
         }else{
             System.out.println("Invalid user values, try again");
-            user.logOut();
+            logOut(user);
         }
+    }
+
+    public User logInViaUsername(User user, String username, String password){
+        ResultSet result = db.getTheUser(username, password);
+
+        try {
+            if(result.next()){
+                user = logInTheUser(result);
+                System.out.println("Welcome " + user.username);
+            }else{
+                System.out.println("User not found, try again");
+                user.username = user.password = null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
+    }
+
+    private User logInTheUser(ResultSet result){
+        try {
+            user = new User(result.getString(DBConst.USERS_FIRSTNAME), result.getString(DBConst.USERS_LASTNAME),
+                    result.getString(DBConst.USERS_EMAIL), result.getString(DBConst.USERS_USERNAME),
+                    result.getString(DBConst.USERS_PASSWORD), result.getString(DBConst.USERS_LOCATION),
+                    result.getString(DBConst.USERS_PHONE), result.getInt(DBConst.USERS_RENTED_CAR_ID),
+                    result.getString(DBConst.USERS_RENT_HISTORY), result.getInt(DBConst.USERS_BALANCE));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 }

@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class User {
-    DBHandler db = new DBHandler();
     protected String firstname;
     protected String lastname;
     protected String email;
@@ -89,51 +88,12 @@ public class User {
         return firstname != null;
     }
 
-    public void logInViaUsername(String username, String password){
-        this.username = username;
-        this.password = password;
-        ResultSet result = db.getTheUser(this);
-
-        try {
-            if(result.next()){
-                logInTheUser(result);
-                System.out.println("Welcome " + this.username);
-            }else{
-                System.out.println("User not found, try again");
-                this.username = this.password = null;
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    private void logInTheUser(ResultSet result){
-        try {
-            firstname = result.getString(DBConst.USERS_FIRSTNAME);
-            lastname = result.getString(DBConst.USERS_LASTNAME);
-            email = result.getString(DBConst.USERS_EMAIL);
-            username = result.getString(DBConst.USERS_USERNAME);
-            password = result.getString(DBConst.USERS_PASSWORD);
-            location = result.getString(DBConst.USERS_LOCATION);
-            phone = result.getString(DBConst.USERS_PHONE);
-            rentedCarID = result.getInt(DBConst.USERS_RENTED_CAR_ID);
-            rentHistory = result.getString(DBConst.USERS_RENT_HISTORY);
-            balance = new Money(result.getInt(DBConst.USERS_BALANCE));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void logOut(){
-        firstname = lastname = email = username = password = location = phone = rentHistory = null;
-        rentedCarID = 0;
-        balance = new Money(0);
-    }
-
     public void depositBalanceViaCard(Money depositMoney, Card card){
         if (!card.isValidCredits()){
             System.out.println("Invalid card credits");
         }else {
             if (card.makeTransaction(depositMoney)) {
+                DBHandler db = new DBHandler();
                 db.userDepositBalance(this, depositMoney.getValue());
             }
         }
@@ -141,6 +101,7 @@ public class User {
 
     public void rentTheCar(Car car){
         if (car.getCarPrice().getValue() <= balance.getValue()) {
+            DBHandler db = new DBHandler();
             db.rentTheCar(car, this);
             db.userDebitingMoney(this, car.getCarPrice().getValue());
             System.out.println("You have successfully rented " + car.getCarName());

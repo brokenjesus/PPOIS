@@ -18,14 +18,17 @@ public class Admin extends User {
     }
 
     public void changeTheCarPrice(Car car, Money newPrice) {
+        DBHandler db = new DBHandler();
         db.changeTheCarPriceInDB(car.getCarID(), newPrice.getValue());
     }
 
     public void addNewCar(Car car){
+        DBHandler db = new DBHandler();
         db.addTheCarToDB(car);
     }
 
     public void deleteTheCar(Car car){
+        DBHandler db = new DBHandler();
         db.deleteTheCar(car);
     }
 }

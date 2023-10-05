@@ -189,15 +189,15 @@ public class DBHandler extends DBConfigs{
         }
     }
 
-    public ResultSet getTheUser(User user){
+    public ResultSet getTheUser(String username, String password){
         ResultSet result = null;
 
         String selectUserQuery = "SELECT * FROM " + DBConst.USERS_TABLE + " WHERE " + DBConst.USERS_USERNAME + "=? AND " +
                 DBConst.USERS_PASSWORD + " COLLATE utf8mb4_bin=?"; //"collate" compare password register
         try {
             PreparedStatement getTheUserRequest = getUsersDbConnection().prepareStatement(selectUserQuery);
-            getTheUserRequest.setString(1, user.getUsername());
-            getTheUserRequest.setString(2, user.getPassword());
+            getTheUserRequest.setString(1, username);
+            getTheUserRequest.setString(2, password);
             result = getTheUserRequest.executeQuery();
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
