@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <div>
+        <a href="/">
+            <img src="../images/logoWhite.png" class="logo" width="55px" height="55px">
+        </a>
+        <ul class="nav">
+            <li class="navItem">
+                <a href="/">
+                    <div class="navLink">
+                        <img src="../images/weatherWhite.png" width="45px" height="45px">
+                        Weather
+                    </div>
+                </a>
+            </li>
+            <li class="navItem">
+                <a href="locations">
+                    <div class="navLink">
+                        <img src="../images/cityWhite.png" width="45px" height="45px">
+                        Cities
+                    </div>
+                </a>
+            </li>
+            <li class="navItem">
+                <a href="settings">
+                    <div class="navLink">
+                        <img src="../images/settingsWhite.png" width="45px" height="45px">
+                        Settings
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <img src="../images/profileWhite.png" class="profileIcon">
+        <a href="/" class="navLink">Profile</a>
+    </div>
+</div>
+<div class="pageContainer">
+    <div class="container wide">
+        <div>
+            <h1>Settings</h1>
+        </div>
+        <div class="section centeredContent">
+            <h2>Temperature units:</h2>
+            <form action="/settings/setTemperatureUnits" method="post">
+                <label class="radioLabel">Celsius °C
+                    <input type="radio" name="unit" value="Celsius">
+                    <span class="checkmark"></span>
+                </label>
+
+                <label class="radioLabel">Fahrenheit °F
+                    <input type="radio" name="unit" value="Fahrenheit">
+                    <span class="checkmark"></span>
+                </label>
+
+                <label class="radioLabel">Kelvin °K
+                    <input type="radio" name="unit" value="Kelvin">
+                    <span class="checkmark"></span>
+                </label>
+
+                <button type="submit" class="button">
+                    submit
+                </button>
+            </form>
+        </div>
+        <div class="section centeredContent">
+            <h2>Speed units:</h2>
+            <form action="/settings/setSpeedUnits" method="post">
+                <label class="radioLabel">kmh
+                    <input type="radio" name="unit" value="kmh">
+                    <span class="checkmark"></span>
+                </label>
+
+                <label class="radioLabel">mph
+                    <input type="radio" name="unit" value="mph">
+                    <span class="checkmark"></span>
+                </label>
+
+                <label class="radioLabel">m/s
+                    <input type="radio" name="unit" value="metersPerSecond">
+                    <span class="checkmark"></span>
+                </label>
+
+
+                <label class="radioLabel">knots
+                    <input type="radio" name="unit" value="knots">
+                    <span class="checkmark"></span>
+                </label>
+
+                
+                <label class="radioLabel">ft/s
+                    <input type="radio" name="unit" value="footsPerSecond">
+                    <span class="checkmark"></span>
+                </label>
+
+                <button type="submit" class="button">
+                    submit
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

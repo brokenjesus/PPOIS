@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+    <div class="headerContainer">
+        <div class="search-container">
+            <form action="/weather" method="post">
+                <input type="text" placeholder="Search for cities" name="searchCity" id="searchBar">
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="sidebar">
+    <div>
+        <a href="/">
+            <img src="../images/logoWhite.png" class="logo" width="55px" height="55px">
+        </a>
+        <ul class="nav">
+            <li class="navItem">
+                <a href="#">
+                    <div class="navLink">
+                        <img src="../images/weatherWhite.png" width="45px" height="45px">
+                        Weather
+                    </div>
+                </a>
+            </li>
+            <li class="navItem">
+                <a href="locations">
+                    <div class="navLink">
+                        <img src="../images/cityWhite.png" width="45px" height="45px">
+                        Cities
+                    </div>
+                </a>
+            </li>
+            <li class="navItem">
+                <a href="settings">
+                    <div class="navLink">
+                        <img src="../images/settingsWhite.png" width="45px" height="45px">
+                        Settings
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <img src="../images/profileWhite.png" class="profileIcon">
+        <a href="/" class="navLink">Profile</a>
+    </div>
+</div>
+<div class="pageContainer">
+    <div class="container">
+        <div class="weatherInfo">
+            <div>
+                <div class="location">
+                    <h2 id="locationAdress"><!-- location --></h2>
+                    <div id="maxAndMinTemp">
+                        <h4 id="maxTemp"><!-- maxTemp --></h4>
+                        <h4>/</h4>
+                        <h4 id="minTemp"><!-- minTemp --></h4>
+                    </div>
+                </div>
+                <div class="temperature">
+                    <h1 id="currentTemperature"><!-- current temperature --></h1>
+                </div>
+            </div>
+            <div class="conditions">
+                <img name="currentConditionIcon" src="images/sun.png" width="300px">
+            </div>
+        </div>
+        <div class="section">
+            <div class="sectionTitleLeftPosition">
+                <h3 class="sectionTitleText">today's forecast</h3>
+            </div>
+            <div class="todayForecastItemsList">
+                <!-- todayForecastItem -->
+                <!-- <div class="todayForecastItem">
+                    <h4 class="sectionTitleText">7:00 AM</h4>
+                    <img src="images/sun.png" width="70px" height="70px">
+                    <h3>25°C</h3>
+                </div>
+                <div class="todayForecastItem">
+                    <h4 class="sectionTitleText">8:00 AM</h4>
+                    <img src="images/sun.png" width="70px" height="70px">
+                    <h3>26°C</h3>
+                </div>
+                <div class="todayForecastItem">
+                    <h4 class="sectionTitleText">9:00 AM</h4>
+                    <img src="images/sun.png" width="70px" height="70px">
+                    <h3>27°C</h3>
+                </div>
+                <div class="todayForecastItem">
+                    <h4 class="sectionTitleText">10:00 AM</h4>
+                    <img src="images/sun.png" width="70px" height="70px">
+                    <h3>29°C</h3>
+                </div>
+                <div class="todayForecastItem">
+                    <h4 class="sectionTitleText">11:00 AM</h4>
+                    <img src="images/sun.png" width="70px" height="70px">
+                    <h3>30°C</h3>
+                </div>
+                <div class="todayForecastItem">
+                    <h4 class="sectionTitleText">12:00 AM</h4>
+                    <img src="images/sun.png" width="70px" height="70px">
+                    <h3>31°C</h3>
+                </div> -->
+            </div>
+
+        </div>
+        <div class="section">
+            <div class="sectionTitleLeftPosition">
+                <h3 class="sectionTitleText">Air conditions</h3>
+            </div>
+            <div class="airConditions">
+                <div class="airConditionsItemContainer">
+                    <div class="airConditionsItem">
+                        <img src="images/feelsLikeWhite.png" width="50px" height="50px">
+                        <div class="airConditionsTitle">
+                            <h4 class="subSectionTitleText">Feels Like</h4>
+                            <h3 class=" uppercase"><!-- FeelLikeValue --></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="airConditionsItemContainer">
+                    <div class="airConditionsItem">
+                        <img src="images/windWhite.png" width="50px" height="50px">
+                        <div class="airConditionsTitle">
+                            <h4 class="subSectionTitleText">Wind</h4>
+                            <h3 class=" uppercase"><!-- WindSpeed --></h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="airConditionsItemContainer">
+                    <div class="airConditionsItem">
+                        <img src="images/sun.png" width="50px" height="50px">
+                        <div class="airConditionsTitle">
+                            <h4 class="subSectionTitleText">Chance Of Rain</h4>
+                            <h3 class=" uppercase">0.2km/h</h3>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="airConditionsItemContainer">
+                    <div class="airConditionsItem">
+                        <img src="images/humidityWhite.png" width="50px" height="50px">
+                        <div class="airConditionsTitle">
+                            <h4 class="subSectionTitleText">Humidity</h4>
+                            <h3 class=" uppercase"><!-- Humidity --></h3>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="sectionTitleLeftPosition">
+            <h3 class="sectionTitleText">daily forecast</h3>
+        </div>
+        <div class="weekForecast">
+            <div class="weekForecastItemContainer">
+                <!-- <div class="weekForecastItem">
+                    <h3>Monday</h3>
+                    <div class="weekForecastItemCondition">
+                        <img src="images/sun.png" width="50px" height="50px">
+                        <h4>Sunny</h4>
+                    </div>
+                    <div class="weekForecastTemperature">
+                        <h4 class="weekForecastMaxTemperature">32°C/</h4><h4 class="weekForecastMinTemperature">21°C</h4>
+                    </div>
+                </div> -->
+                <!-- weekForecastItem -->
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

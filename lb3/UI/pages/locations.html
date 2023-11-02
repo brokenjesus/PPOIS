@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather</title>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<header>
+    <div class="headerContainer">
+        <div class="search-container">
+            <form action="/weather" method="post">
+                <input type="text" placeholder="Search for cities" name="searchCity" id="searchBar">
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="sidebar">
+    <div>
+        <a href="/">
+            <img src="../images/logoWhite.png" class="logo" width="55px" height="55px">
+        </a>
+        <ul class="nav">
+            <li class="navItem">
+                <a href="/">
+                    <div class="navLink">
+                        <img src="../images/weatherWhite.png" width="45px" height="45px">
+                        Weather
+                    </div>
+                </a>
+            </li>
+            <li class="navItem">
+                <a href="locations">
+                    <div class="navLink">
+                        <img src="../images/cityWhite.png" width="45px" height="45px">
+                        Cities
+                    </div>
+                </a>
+            </li>
+            <li class="navItem">
+                <a href="settings">
+                    <div class="navLink">
+                        <img src="../images/settingsWhite.png" width="45px" height="45px">
+                        Settings
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <img src="../images/profileWhite.png" class="profileIcon">
+        <a href="/" class="navLink">Profile</a>
+    </div>
+</div>
+<div class="pageContainer">
+    <div class="container wide">
+        <h1>Available cities:</h1>
+        <div class="availableLocations">
+            <!-- <div class="section availableLocations">
+                <h2>first letter of city</h2>
+                <a href=\"javascript:void(0);\" onclick=\"postCity('"+city+"');\"><h3>"+city+"</h3></a>"
+            </div> -->
+            <!-- availableLocations -->
+            
+        </div>
+    </div>
+</div>
+</div>
+<script>
+    function postCity(city) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/weather';
+
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'searchCity';
+        input.value = city;
+
+        form.appendChild(input);
+        document.body.appendChild(form);
+
+        form.submit();
+    }
+</script>
+</body>
+</html>
