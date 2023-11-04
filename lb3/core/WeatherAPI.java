@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class WeatherAPI {
-    private final String apiKey = "080694ae5804c09f67fa139858d9547a";
+    private final String apiKey = "test?@/test";
     private URL apiUrl;
     public HttpURLConnection connection;
     public WeatherAPI(String location) {
