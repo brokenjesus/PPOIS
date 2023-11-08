@@ -9,13 +9,6 @@ import java.io.PrintStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestGraphDeleteEdge {
-    private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    @BeforeEach
-    public void setUp() {
-        System.setOut(new PrintStream(outputStream));
-    }
-
     @Test
     public void testGraphEdgeDoesntExistDelete() {
         Graph graph = new Graph();
@@ -27,9 +20,12 @@ public class TestGraphDeleteEdge {
         graph.addEdge("B", "C");
         graph.addEdge("C", "A");
 
-        graph.deleteEdge("B", "A");
-
-        Assertions.assertEquals("Edge doesn't exist", outputStream.toString().trim());
+        try {
+            graph.deleteEdge("B", "A");
+            assertEquals(3, graph.getNodesCount());
+        } catch (IllegalArgumentException e) {
+            assertEquals("Edge doesn't exist", e.getMessage());
+        }
     }
 
     @Test

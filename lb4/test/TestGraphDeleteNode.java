@@ -9,13 +9,6 @@ import java.io.PrintStream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestGraphDeleteNode {
-    private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    @BeforeEach
-    public void setUp() {
-        System.setOut(new PrintStream(outputStream));
-    }
-
     @Test
     public void testGraphNodeDoesntExistDelete(){
         Graph graph = new Graph();
