@@ -21,12 +21,12 @@ public class TestGraphAddEdge {
         Graph graph = new Graph();
         graph.addNode("A");
         graph.addNode("B");
-        graph.addNode("C");
+        graph.addNode(3.14);
 
         graph.addEdge("A", "B");
-        graph.addEdge("B", "C");
-        graph.addEdge("C", "A");
-        graph.addEdge("C", "A");
+        graph.addEdge("B", 3.14);
+        graph.addEdge(3.14, "A");
+        graph.addEdge(3.14, "A");
 
         Assertions.assertEquals("Edge already exist", outputStream.toString().trim());
     }

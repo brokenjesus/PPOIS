@@ -6,15 +6,15 @@ public class TestGraphNodeDegree {
     @Test
     public void testGraphNodeDegree(){
         Graph graph = new Graph();
-        graph.addNode("A");
+        graph.addNode(0.0000023);
         graph.addNode("B");
         graph.addNode("C");
 
-        graph.addEdge("A", "B");
+        graph.addEdge(0.0000023, "B");
         graph.addEdge("B", "C");
-        graph.addEdge("C", "A");
+        graph.addEdge("C", 0.0000023);
 
-        Assertions.assertEquals(2, graph.getNodeDegree("A"));
+        Assertions.assertEquals(2, graph.getNodeDegree(0.0000023));
     }
 
     @Test
