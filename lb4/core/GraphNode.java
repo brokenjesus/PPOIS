@@ -1,19 +1,13 @@
 package by.lupach.grapheditor.core;
 
-public class GraphNode implements Comparable<GraphNode>{
-    private String ID;
+public class GraphNode<T extends Comparable<T>> {
+    private T id;
 
-    public GraphNode(String ID) {
-        this.ID = ID;
+    public GraphNode(T id) {
+        this.id = id;
     }
 
-    public String getID() {
-        return ID;
+    public T getId() {
+        return id;
     }
-
-    @Override
-    public int compareTo(GraphNode otherNode) {
-        return this.ID.compareTo(otherNode.getID());
-    }
-
 }
