@@ -12,8 +12,6 @@ public class Graph{
         adjacencyList = new TreeMap<>();
     }
 
-
-    //Nodes
     public GraphNode getNodeByID(String ID) {
         for (GraphNode node : adjacencyList.keySet()) {
             if (node.getID().equals(ID)) {
@@ -76,7 +74,6 @@ public class Graph{
         }
 
         int inDegree = 0;
-        GraphNode node = getNodeByID(ID);
         for (GraphNode keyNode : adjacencyList.keySet()) {
             List<GraphNode> adjacentNodes = adjacencyList.get(keyNode);
             for (GraphNode valueNode : adjacentNodes){
@@ -118,7 +115,6 @@ public class Graph{
         }
     }
 
-    //EDGES
     public void addEdge(String node1, String node2) {
         if (!isEdgeExist(node1, node2)){
             adjacencyList.computeIfAbsent(getNodeByID(node1), k -> new ArrayList<>()).add(new GraphNode(node2));
@@ -290,20 +286,4 @@ public class Graph{
             System.out.println(edge.getKey().getID() + "->" + edge.getValue().getID());
         }
     }
-
-
-//    public Iterator<Map.Entry<GraphNode, GraphNode>> edgeIterator() {
-//        List<Map.Entry<GraphNode, GraphNode>> edges = new ArrayList<>();
-//        for (Map.Entry<GraphNode, List<GraphNode>> entry : adjacencyList.entrySet()) {
-//            GraphNode sourceNode = entry.getKey();
-//            for (GraphNode targetNode : entry.getValue()) {
-//                edges.add(new AbstractMap.SimpleEntry<>(sourceNode, targetNode));
-//            }
-//        }
-//        return edges.iterator();
-//    }
-
-
-
-
 }
