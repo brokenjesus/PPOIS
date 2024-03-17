@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class Player:
     def __init__(self, full_name, birth_date, football_team, home_city, squad, position):
         self.full_name = full_name
@@ -16,7 +17,7 @@ class Player:
     def get_player_data(self):
         return (
             self.full_name,
-            self.birth_date.strftime("%Y-%m-%d"),  # Преобразование обратно в строку
+            self.birth_date.strftime("%Y-%m-%d"),
             self.football_team,
             self.home_city,
             self.squad,

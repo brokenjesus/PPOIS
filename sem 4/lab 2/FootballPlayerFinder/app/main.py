@@ -1,4 +1,5 @@
 import tkinter as tk
+
 from app.controller import Controller
 
 if __name__ == "__main__":

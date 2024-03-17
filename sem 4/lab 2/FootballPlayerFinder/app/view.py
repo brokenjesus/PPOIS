@@ -1,6 +1,9 @@
 import tkinter as tk
+from tkinter import ttk, messagebox
 from typing import TYPE_CHECKING
-from tkinter import ttk
+
+from anytree import Node, RenderTree
+from tkcalendar import DateEntry
 
 if TYPE_CHECKING:
     from app.controller import Controller
@@ -8,83 +11,214 @@ if TYPE_CHECKING:
 
 class View:
     def __init__(self, root, controller):
+        self.position_entry = None
+        self.squad_entry = None
+        self.additional_date_entry = None
+        self.home_city_entry = None
+        self.full_name_entry = None
+        self.football_team_entry = None
+        self.birth_date_entry = None
+        self.additional_criteria_dropdown = None
+        self.additional_criteria = None
+        self.additional_search_entry = None
+        self.additional_search_criteria_frame = None
+        self.add_criteria_button = None
+        self.date_entry = None
+        self.search_entry = None
+        self.criteria = None
+        self.delete_result_tree = None
+        self.search_result_tree = None
+        self.player_tree = None
+        self.search_window = None
         self.root = root
-        self.root.title("Player List")
-        self.controller:Controller = controller
+        self.controller: Controller = controller
         self.create_widgets()
 
     def create_widgets(self):
-        self.player_tree = ttk.Treeview(self.root, columns=("ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
+        self.player_tree = ttk.Treeview(self.root, columns=(
+            "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
         self.player_tree.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
 
-        self.first_button = ttk.Button(self.root, text="First", command=self.controller.first_page)
-        self.first_button.grid(row=1, column=2, padx=(150, 200), pady=5, sticky="w")
+        first_button = ttk.Button(self.root, text="First", command=lambda: self.controller.first_page("main"))
+        first_button.grid(row=1, column=2, padx=(150, 200), pady=5, sticky="w")
 
-        self.prev_button = ttk.Button(self.root, text="Previous", command=self.controller.prev_page)
-        self.prev_button.grid(row=1, column=1, padx=(0, 10), pady=5)
+        prev_button = ttk.Button(self.root, text="Previous", command=lambda: self.controller.prev_page("main"))
+        prev_button.grid(row=1, column=1, padx=(0, 10), pady=5)
 
-        self.next_button = ttk.Button(self.root, text="Next", command=self.controller.next_page)
-        self.next_button.grid(row=1, column=2, padx=(100, 150), pady=5)
+        next_button = ttk.Button(self.root, text="Next", command=lambda: self.controller.next_page("main"))
+        next_button.grid(row=1, column=2, padx=(100, 150), pady=5)
 
-        self.last_button = ttk.Button(self.root, text="Last", command=self.controller.last_page)
-        self.last_button.grid(row=1, column=1, padx=(0, 0), pady=5, sticky="e")
-
-
+        last_button = ttk.Button(self.root, text="Last", command=lambda: self.controller.last_page("main"))
+        last_button.grid(row=1, column=1, padx=(0, 0), pady=5, sticky="e")
 
         headers = ["ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
         for header in headers:
             self.player_tree.heading(header, text=header)
 
-        # Виджеты для ввода критериев поиска
         header_menu = tk.Menu(self.root)
         self.root.config(menu=header_menu)
 
-        search_menu = tk.Menu(header_menu, tearoff=0)
-        header_menu.add_cascade(label="Options", menu=search_menu)
+        options_menu = tk.Menu(header_menu, tearoff=0)
+        header_menu.add_cascade(label="Options", menu=options_menu)
 
-        search_menu.add_command(label="Add Player", command=self.show_add_player_window)
-        search_menu.add_command(label="Search Players", command=self.show_search_window)
+        options_menu.add_command(label="Add Player", command=self.show_add_player_window)
+        options_menu.add_command(label="Search Players", command=self.show_search_window)
+        options_menu.add_command(label="Delete Players", command=self.show_delete_window)
+        options_menu.add_command(label="Players Tree", command=self.show_players_tree)
+
+        settings_menu = tk.Menu(header_menu, tearoff=0)
+        header_menu.add_cascade(label="Settings", menu=settings_menu)
+        settings_menu.add_command(label="Players limit",
+                                  command=self.show_players_limit_dialog)
+
+    def show_players_limit_dialog(self):
+        # Create a dialog window
+        limit_dialog = tk.Toplevel(self.root)
+        limit_dialog.title("Set Players Limit")
+
+        # Create a label and entry for user input
+        limit_label = tk.Label(limit_dialog, text="Enter the number of players per page:")
+        limit_label.grid(row=0, column=0, padx=10, pady=5)
+
+        limit_entry = ttk.Entry(limit_dialog)
+        limit_entry.grid(row=0, column=1, padx=10, pady=5)
+
+        # Function to handle setting the players limit
+        def set_players_limit():
+            limit = limit_entry.get()
+            if limit.isdigit():
+                self.controller.set_players_limit(int(limit))
+                limit_dialog.destroy()
+            else:
+                messagebox.showerror("Error", "Please enter a valid number.")
+
+        # Create a button to confirm the limit
+        confirm_button = ttk.Button(limit_dialog, text="Set Limit", command=set_players_limit)
+        confirm_button.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
 
     def show_search_window(self):
-        search_window = tk.Toplevel(self.root)
-        search_window.title("Search Players")
+        self.search_window = tk.Toplevel(self.root)
+        self.search_window.title("Search Players")
 
-        search_frame = tk.Frame(search_window)
+        search_frame = tk.Frame(self.search_window)
         search_frame.pack(padx=10, pady=10)
 
-        self.search_entry = ttk.Entry(search_frame, width=30)
-        self.search_entry.grid(row=0, column=0, padx=10, pady=5)
+        search_criteria_frame = tk.Frame(search_frame)
+        search_criteria_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=5, sticky="w")
 
-        self.criteria_var = tk.StringVar()
-        criteria_dropdown = ttk.Combobox(search_frame, textvariable=self.criteria_var,
+        self.criteria = tk.StringVar()
+        criteria_dropdown = ttk.Combobox(search_criteria_frame, textvariable=self.criteria,
                                          values=["Full Name", "Birth Date", "Position", "Squad", "Football Team",
                                                  "Home City"])
         criteria_dropdown.set("Select Criteria")
         criteria_dropdown.grid(row=0, column=1, padx=10, pady=5)
 
-        # Treeview to display search results
+        criteria_dropdown.bind("<<ComboboxSelected>>", lambda event: self.toggle_date_entry())
+
+        self.search_entry = ttk.Entry(search_criteria_frame, width=50)
+        self.date_entry = DateEntry(search_criteria_frame, width=12, background='darkblue',
+                                    foreground='white', borderwidth=2)
+
+        self.toggle_date_entry()
+
+        self.add_criteria_button = ttk.Button(search_criteria_frame, text="+", command=self.toggle_additional_criteria)
+        self.add_criteria_button.grid(row=0, column=2, padx=10, pady=5)
+
+        self.additional_search_criteria_frame = tk.Frame(search_frame)
+
+        self.additional_search_entry = ttk.Entry(self.additional_search_criteria_frame, width=50)
+        self.additional_search_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
+        self.additional_criteria = tk.StringVar()
+        self.additional_criteria_dropdown = ttk.Combobox(self.additional_search_criteria_frame,
+                                                         textvariable=self.additional_criteria,
+                                                         values=["Full Name", "Birth Date", "Position", "Squad",
+                                                                 "Football Team",
+                                                                 "Home City"])
+        self.additional_criteria_dropdown.grid(row=0, column=1, padx=10, pady=5,
+                                               sticky="w")
+
+        self.additional_search_criteria_frame.grid(row=1, column=1, columnspan=3, padx=10, pady=5)
+        self.additional_search_criteria_frame.grid_forget()
+
+        self.additional_criteria_dropdown.bind("<<ComboboxSelected>>",
+                                               lambda event: self.toggle_additional_date_entry())
+
+        self.additional_date_entry = DateEntry(self.additional_search_criteria_frame, width=12, background='darkblue',
+                                               foreground='white', borderwidth=2)
+
+        self.toggle_additional_date_entry()
+
         self.search_result_tree = ttk.Treeview(search_frame, columns=(
-        "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
-        self.search_result_tree.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
+            "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
+        self.search_result_tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 
         headers = ["ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
         for header in headers:
             self.search_result_tree.heading(header, text=header)
 
-        search_button = ttk.Button(search_frame, text="Search", command=self.controller.search_players)
-        search_button.grid(row=0, column=2, padx=10, pady=5)
+        search_button = ttk.Button(search_frame, text="Search", command=lambda: self.controller.search_players("search"))
+        search_button.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
-        self.first_button = ttk.Button(search_frame, text="First", command=self.controller.first_page)
-        self.first_button.grid(row=2, column=0, padx=(150, 200), pady=5, sticky="w")
+        first_button = ttk.Button(search_frame, text="First", command=lambda: self.controller.first_page("search"))
+        first_button.grid(row=3, column=2, padx=(150, 200), pady=5, sticky="w")
 
-        self.prev_button = ttk.Button(search_frame, text="Previous", command=self.controller.prev_page)
-        self.prev_button.grid(row=2, column=0, padx=(0, 10), pady=5)
+        prev_button = ttk.Button(search_frame, text="Previous",
+                                 command=lambda: self.controller.prev_page("search"))
+        prev_button.grid(row=3, column=1, padx=(0, 10), pady=5)
 
-        self.next_button = ttk.Button(search_frame, text="Next", command=self.controller.next_page)
-        self.next_button.grid(row=2, column=1, padx=(0, 10), pady=5)
+        next_button = ttk.Button(search_frame, text="Next", command=lambda: self.controller.next_page("search"))
+        next_button.grid(row=3, column=2, padx=(100, 150), pady=5)
 
-        self.last_button = ttk.Button(search_frame, text="Last", command=self.controller.last_page)
-        self.last_button.grid(row=2, column=1, padx=(0, 0), pady=5, sticky="e")
+        last_button = ttk.Button(search_frame, text="Last", command=lambda: self.controller.last_page("search"))
+        last_button.grid(row=3, column=1, padx=(0, 0), pady=5, sticky="e")
+
+    def update_delete_results(self, players):
+        for item in self.result_tree.get_children():
+            self.result_tree.delete(item)
+
+        if players:
+            for player in players:
+                self.result_tree.insert("", tk.END, values=player)
+        else:
+            self.result_tree.insert("", tk.END, values=["No players found."])
+
+    def toggle_date_entry(self):
+        if self.criteria.get() == "Birth Date":
+            self.date_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+            self.search_entry.grid_forget()
+        else:
+            self.search_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+            self.date_entry.grid_forget()
+
+    def toggle_additional_date_entry(self):
+        if self.additional_criteria.get() == "Birth Date":
+            self.additional_date_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+            self.additional_search_entry.grid_forget()
+        else:
+            self.additional_search_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+            self.additional_date_entry.grid_forget()
+
+    def toggle_additional_criteria(self):
+        if self.additional_search_criteria_frame.winfo_ismapped():
+            self.add_criteria_button.config(text="+")
+            self.additional_search_criteria_frame.grid_forget()
+            self.additional_search_entry.delete(0, tk.END)
+            self.additional_criteria.set("Select Criteria")
+        else:
+            if self.criteria.get() != "Select Criteria":
+                current_main_criteria = self.criteria.get()
+                self.additional_criteria_dropdown['values'] = [criteria for criteria in
+                                                               ["Full Name", "Birth Date", "Position", "Squad",
+                                                                "Football Team", "Home City"] if
+                                                               criteria != current_main_criteria]
+                self.add_criteria_button.config(text="-")
+                self.additional_search_criteria_frame.grid(row=1, column=0, columnspan=3, padx=10,
+                                                           pady=5, sticky="w")
+                self.additional_search_entry.delete(0, tk.END)
+                self.additional_criteria.set("Select Criteria")
+            else:
+                messagebox.askokcancel("Error", "Pick main criteria")
 
     def update_search_results(self, players):
         for item in self.search_result_tree.get_children():
@@ -95,6 +229,98 @@ class View:
                 self.search_result_tree.insert("", tk.END, values=player)
         else:
             self.search_result_tree.insert("", tk.END, values=["No players found."])
+
+        current_page_num = self.controller.get_page_num("search")
+        self.search_window.title(f"Player List - Page {current_page_num}")
+
+    def show_delete_window(self):
+        delete_window = tk.Toplevel(self.root)
+        delete_window.title("Delete Players")
+
+        delete_frame = tk.Frame(delete_window)
+        delete_frame.pack(padx=10, pady=10)
+
+        criteria_frame = tk.Frame(delete_frame)
+        criteria_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=5, sticky="w")
+
+        self.criteria = tk.StringVar()
+        criteria_dropdown = ttk.Combobox(criteria_frame, textvariable=self.criteria,
+                                         values=["Full Name", "Birth Date", "Position", "Squad", "Football Team",
+                                                 "Home City"])
+        criteria_dropdown.set("Select Criteria")
+        criteria_dropdown.grid(row=0, column=1, padx=10, pady=5)
+
+        criteria_dropdown.bind("<<ComboboxSelected>>", lambda event: self.toggle_date_entry())
+
+        self.search_entry = ttk.Entry(criteria_frame, width=50)
+        self.date_entry = DateEntry(criteria_frame, width=12, background='darkblue',
+                                    foreground='white', borderwidth=2)
+
+        self.toggle_date_entry()
+
+        self.add_criteria_button = ttk.Button(criteria_frame, text="+", command=self.toggle_additional_criteria)
+        self.add_criteria_button.grid(row=0, column=2, padx=10, pady=5)
+
+        self.additional_search_criteria_frame = tk.Frame(delete_frame)
+
+        self.additional_search_entry = ttk.Entry(self.additional_search_criteria_frame, width=50)
+        self.additional_search_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
+        self.additional_criteria = tk.StringVar()
+        self.additional_criteria_dropdown = ttk.Combobox(self.additional_search_criteria_frame,
+                                                         textvariable=self.additional_criteria,
+                                                         values=["Full Name", "Birth Date", "Position", "Squad",
+                                                                 "Football Team",
+                                                                 "Home City"])
+        self.additional_criteria_dropdown.grid(row=0, column=1, padx=10, pady=5,
+                                               sticky="w")
+
+        self.additional_search_criteria_frame.grid(row=1, column=0, columnspan=3, padx=10, pady=5)
+        self.additional_search_criteria_frame.grid_forget()
+
+        self.additional_criteria_dropdown.bind("<<ComboboxSelected>>",
+                                               lambda event: self.toggle_additional_date_entry())
+
+        self.additional_date_entry = DateEntry(self.additional_search_criteria_frame, width=12, background='darkblue',
+                                               foreground='white', borderwidth=2)
+
+        self.toggle_additional_date_entry()
+
+        self.search_button = ttk.Button(criteria_frame, text="Search", command=lambda: self.controller.search_players("delete"))
+        self.search_button.grid(row=0, column=3, padx=10, pady=5, sticky="e")
+
+        self.result_tree = ttk.Treeview(delete_frame, columns=(
+            "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
+        self.result_tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
+
+        headers = ["ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
+        for header in headers:
+            self.result_tree.heading(header, text=header)
+
+        delete_button = ttk.Button(delete_frame, text="Delete", command=self.controller.delete_players)
+        delete_button.grid(row=0, column=2, padx=10, pady=5, sticky="e")
+
+        first_button = ttk.Button(delete_frame, text="First", command=lambda: self.controller.first_page("delete"))
+        first_button.grid(row=4, column=0, padx=(150, 200), pady=5, sticky="w")
+
+        prev_button = ttk.Button(delete_frame, text="Previous", command=lambda: self.controller.prev_page("delete"))
+        prev_button.grid(row=4, column=0, padx=(0, 10), pady=5)
+
+        next_button = ttk.Button(delete_frame, text="Next", command=lambda: self.controller.next_page("delete"))
+        next_button.grid(row=4, column=1, padx=(0, 10), pady=5)
+
+        last_button = ttk.Button(delete_frame, text="Last", command=lambda: self.controller.last_page("delete"))
+        last_button.grid(row=4, column=1, padx=(0, 0), pady=5, sticky="e")
+
+    def update_delete_results(self, players):
+        for item in self.result_tree.get_children():
+            self.result_tree.delete(item)
+
+        if players:
+            for player in players:
+                self.result_tree.insert("", tk.END, values=player)
+        else:
+            self.result_tree.insert("", tk.END, values=["No players found."])
 
     def show_add_player_window(self):
         add_player_window = tk.Toplevel(self.root)
@@ -108,9 +334,10 @@ class View:
         self.full_name_entry = ttk.Entry(add_frame, width=30)
         self.full_name_entry.grid(row=0, column=1, padx=10, pady=5)
 
-        birth_date_label = tk.Label(add_frame, text="Birth Date (YYYY-MM-DD):")
+        birth_date_label = tk.Label(add_frame, text="Birth Date:")
         birth_date_label.grid(row=1, column=0, padx=10, pady=5)
-        self.birth_date_entry = ttk.Entry(add_frame, width=30)
+        self.birth_date_entry = DateEntry(add_frame, width=12, background='darkblue',
+                                          foreground='white', borderwidth=2)
         self.birth_date_entry.grid(row=1, column=1, padx=10, pady=5)
 
         football_team_label = tk.Label(add_frame, text="Football Team:")
@@ -136,13 +363,51 @@ class View:
         add_button = ttk.Button(add_frame, text="Add Player", command=self.controller.add_player)
         add_button.grid(row=6, column=0, columnspan=2, padx=10, pady=5)  # corrected grid placement
 
-    def update_player_window(self, players):
+    def show_players_tree(self):
+        players = self.controller.players_list.players
+        # Create a new window to display the tree
+        tree_window = tk.Toplevel(self.root)
+        tree_window.title("Players Tree")
+
+        # Create a root node for the tree
+        root_node = Node("Players")
+
+        # Assuming each player is represented by a tuple
+        for player in players:
+            # Assuming the first element of the tuple is the player ID
+            player_id = player[0]
+            player_node = Node(str(player_id), parent=root_node)
+            # Assuming the remaining elements of the tuple are player attributes
+            for index, value in enumerate(player[1:], start=1):
+                Node(f"Attribute {index}: {value}", parent=player_node)
+
+        # Render the tree
+        tree_str = ""
+        for pre, fill, node in RenderTree(root_node):
+            tree_str += "%s%s\n" % (pre, node.name)
+
+        # Display the tree in a text widget
+        tree_text = tk.Text(tree_window)
+        tree_text.insert(tk.END, tree_str)
+        tree_text.pack()
+
+        # Optional: Add scrollbars if the tree is large
+        scrollbar = ttk.Scrollbar(tree_window, command=tree_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        tree_text.config(yscrollcommand=scrollbar.set)
+
+    def update_main_window(self, players):
         for item in self.player_tree.get_children():
             self.player_tree.delete(item)
 
-        # Обновляем таблицу данными
         if players:
             for player in players:
                 self.player_tree.insert("", tk.END, values=player)
         else:
             self.player_tree.insert("", tk.END, values=["No players found."])
+
+        current_page_num = self.controller.get_page_num("main")
+        players_per_page = self.controller.get_players_limit()
+        players_count = self.controller.players_list.get_players_count()
+        self.root.title(
+            f"Player List - Page: {current_page_num}\tPlayers {players_count}\tPer page: {players_per_page}")

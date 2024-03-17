@@ -1,5 +1,7 @@
 import mysql.connector
+
 from core.db_configs import DBConfigs
+
 
 class DBHandler(DBConfigs):
     def __init__(self):
@@ -63,40 +65,39 @@ class DBHandler(DBConfigs):
         result = self.cursor.fetchall()
         return result
 
-    def get_total_players_count(self):
+    def get_players_count(self, criteria=None):
         count_query = "SELECT COUNT(*) FROM players"
-        self.cursor.execute(count_query)
+        conditions = []
+        values = []
+        if criteria:
+            for key, value in criteria.items():
+                conditions.append(f"{key} = %s")
+                values.append(value)
+
+        if conditions:
+            count_query += " WHERE " + " AND ".join(conditions)
+        self.cursor.execute(count_query, tuple(values))
         result = self.cursor.fetchone()
         if result:
             return result[0]  # Assuming the count is the first column in the result
         else:
             return 0
 
-    def delete_player(self, search_criteria):
-        players_to_delete = self.search_players(search_criteria)
+    def delete_players(self, criteria):
+        select_query = "DELETE FROM players"
 
-        if not players_to_delete:
-            print("Нет игроков для удаления.")
-            return
+        conditions = []
+        values = []
+        for key, value in criteria.items():
+            conditions.append(f"{key} = %s")
+            values.append(value)
 
-        print("Игрок(и) для удаления:")
-        for player in players_to_delete:
-            print(player)
+        if conditions:
+            select_query += " WHERE " + " AND ".join(conditions)
 
-        confirmation = input("Вы уверены, что хотите удалить этих игроков? (y/n): ").lower()
-
-        if confirmation == 'y':
-            delete_query = "DELETE FROM players WHERE "
-            conditions = []
-            for key, value in search_criteria.items():
-                conditions.append(f"{key} = '{value}'")
-            delete_query += " AND ".join(conditions)
-
-            self.cursor.execute(delete_query)
-            self.conn.commit()
-            print("Игрок(и) успешно удален(ы).")
-        else:
-            print("Удаление отменено.")
+        self.cursor.execute(select_query, tuple(values))
+        result = self.cursor.fetchall()
+        return result
 
     def close_connection(self):
         self.cursor.close()
