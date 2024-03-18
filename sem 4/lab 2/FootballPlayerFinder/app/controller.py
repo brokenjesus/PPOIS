@@ -1,9 +1,11 @@
 from datetime import datetime
-from tkinter import messagebox, Toplevel, Label
+from tkinter import messagebox, Toplevel, Label, ttk, filedialog
 
-from core.db_handler import DBHandler
+import tk
+from anytree import Node, RenderTree
+
+from app.view import View
 from core.players_list import PlayersList
-from view import View
 
 
 class Controller:
@@ -11,13 +13,32 @@ class Controller:
     __offset_search_page = 0
     __offset_main_page = 0
 
+    def switch_to_xml(self, file_path):
+        self.players_list.switch_db_to_xml(file_path)
+        messagebox.showinfo("Switch Database", f"Switched to XML database: {file_path}")
+        __offset_search_page = 0
+        __offset_main_page = 0
+        self.load_players()
+        self.view.switch_db_dialog.destroy()
+
+    def switch_to_sql(self):
+        self.players_list.switch_db_to_sql()
+        messagebox.showinfo("Switch Database", f"Switched to mySQL database")
+        __offset_search_page = 0
+        __offset_main_page = 0
+        self.load_players()
+        self.view.switch_db_dialog.destroy()
+
     def __init__(self, root):
-        self.db_handler = DBHandler()
         self.players_list = PlayersList()
         self.view = View(root, self)
         self.load_players()
         self.search_input = {}
         self.search_criteria = {}
+
+    def get_all_players(self):
+        result = self.players_list.fetch_players_from_db()
+        return result
 
     def get_players_limit(self):
         return self.__PLAYERS_LIMIT
@@ -35,7 +56,7 @@ class Controller:
 
     def get_pages_count(self, search_criteria=None):
         players_count = self.players_list.get_players_count(search_criteria)
-        pages_count = players_count// self.__PLAYERS_LIMIT
+        pages_count = players_count // self.__PLAYERS_LIMIT
         if players_count % self.__PLAYERS_LIMIT != 0:
             pages_count += 1
         return pages_count
@@ -54,16 +75,24 @@ class Controller:
 
     def delete_players(self):
         delete_criteria = self.__configure_search_criteria()
-        count_of_players_to_delete = self.players_list.get_players_count(delete_criteria)
+        if len(delete_criteria) == 0:
+            self.show_search_fields_empty_error()
+            return
         if self.confirm_delete():
-            self.players_list.delete_player(delete_criteria)
-            self.show_deleted_players_count(count_of_players_to_delete)
-            self.load_players()
+            players_deleted = self.players_list.delete_player(delete_criteria)
+            if players_deleted > 0:
+                self.show_deleted_players_count(players_deleted)
+                self.load_players()
+            else:
+                self.show_deletion_error()
+
+    @staticmethod
+    def show_deletion_error():
+        messagebox.showerror("Error", "No players matched the criteria.\nNothing was deleted.")
 
     def show_deleted_players_count(self, deleted_count):
         players_deleted_window = Toplevel(self.view.root)
         players_deleted_window.title("Players Deleted")
-
         message = f"{deleted_count} player(s) deleted successfully."
         confirmation_label = Label(players_deleted_window, text=message)
         confirmation_label.pack(padx=10, pady=10)
@@ -73,10 +102,15 @@ class Controller:
                                                 search_criteria={})
         self.view.update_main_window(self.players_list.players)
 
-    def __convert_date_format(self, date_str):
+    @staticmethod
+    def __convert_date_format(date_str):
         date_obj = datetime.strptime(date_str, "%m/%d/%y")
         result = date_obj.strftime("%Y-%m-%d")
         return result
+
+    @staticmethod
+    def show_search_fields_empty_error():
+        messagebox.showerror("Error", "Search fields are empty")
 
     def search_players(self, frame):
         search_criteria = self.__configure_search_criteria()
@@ -89,10 +123,11 @@ class Controller:
             elif frame == "delete":
                 self.view.update_delete_results(self.players_list.players)
         else:
-            messagebox.showerror("Error", "Search fields are empty")
+            self.show_search_fields_empty_error()
             return
 
-    def __get_search_term(self, criteria, search_term):
+    @staticmethod
+    def __get_search_term(criteria, search_term):
         match criteria:
             case "Full Name":
                 return {"full_name": search_term}
@@ -252,5 +287,39 @@ class Controller:
         self.pagination(page_type, "next")
 
     def confirm_delete(self):
-        result = messagebox.askokcancel("Confirm Deletion", "Are you sure you want to delete this players?")
+        result = messagebox.askokcancel("Confirm Deletion", "Are you sure you want to delete this players?",
+                                        parent=self.view.delete_frame)
         return result
+
+    def show_players_tree(self):
+        players = self.players_list.players
+        # Create a new window to display the tree
+        tree_window = tk.Toplevel(self.view.root)
+        tree_window.title("Players Tree")
+
+        # Create a root node for the tree
+        root_node = Node("Players")
+
+        # Assuming each player is represented by a tuple
+        for player in players:
+            # Assuming the first element of the tuple is the player ID
+            player_id = player[0]
+            player_node = Node(str(player_id), parent=root_node)
+            # Assuming the remaining elements of the tuple are player attributes
+            for index, value in enumerate(player[1:], start=1):
+                Node(value, parent=player_node)
+
+        # Render the tree
+        tree_str = ""
+        for pre, fill, node in RenderTree(root_node):
+            tree_str += "%s%s\n" % (pre, node.name)
+
+        # Display the tree in a text widget
+        tree_text = tk.Text(tree_window)
+        tree_text.insert(tk.END, tree_str)
+        tree_text.pack()
+
+        # Optional: Add scrollbars if the tree is large
+        scrollbar = ttk.Scrollbar(tree_window, command=tree_text.yview)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        tree_text.config(yscrollcommand=scrollbar.set)

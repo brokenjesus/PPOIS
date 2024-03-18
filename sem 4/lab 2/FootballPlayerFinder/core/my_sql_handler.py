@@ -1,9 +1,11 @@
 import mysql.connector
 
-from core.db_configs import DBConfigs
+from core.my_sql_configs import MySQLConfigs
+from core.db_interface import DBInterface
+from core.player import Player
 
 
-class DBHandler(DBConfigs):
+class MySQLHandler(MySQLConfigs, DBInterface):
     def __init__(self):
         self.conn = mysql.connector.connect(
             host=self.HOST,
@@ -16,7 +18,7 @@ class DBHandler(DBConfigs):
         self.create_table_if_not_exists()
 
     def create_database_if_not_exists(self):
-        database_creation_query = f"CREATE DATABASE IF NOT EXISTS {DBConfigs.DATABASE}"
+        database_creation_query = f"CREATE DATABASE IF NOT EXISTS {MySQLConfigs.DATABASE}"
         self.cursor.execute(database_creation_query)
         self.conn.commit()
 
@@ -63,7 +65,20 @@ class DBHandler(DBConfigs):
 
         self.cursor.execute(select_query, tuple(values))
         result = self.cursor.fetchall()
-        return result
+
+        players = []
+        for row in result:
+            player = Player(
+                full_name=row[1],
+                birth_date=row[2].strftime("%Y-%m-%d"),
+                football_team=row[3],
+                home_city=row[4],
+                squad=row[5],
+                position=row[6]
+            )
+            players.append(player)
+
+        return players
 
     def get_players_count(self, criteria=None):
         count_query = "SELECT COUNT(*) FROM players"
@@ -92,12 +107,14 @@ class DBHandler(DBConfigs):
             conditions.append(f"{key} = %s")
             values.append(value)
 
-        if conditions:
+        rows_affected = 0
+        if len(conditions) != 0:
             select_query += " WHERE " + " AND ".join(conditions)
+            self.cursor.execute(select_query, tuple(values))
+            rows_affected = self.cursor.rowcount
+            self.conn.commit()
 
-        self.cursor.execute(select_query, tuple(values))
-        result = self.cursor.fetchall()
-        return result
+        return rows_affected
 
     def close_connection(self):
         self.cursor.close()

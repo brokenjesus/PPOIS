@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, filedialog
 from typing import TYPE_CHECKING
 
 from anytree import Node, RenderTree
@@ -11,6 +11,9 @@ if TYPE_CHECKING:
 
 class View:
     def __init__(self, root, controller):
+        self.result_tree = None
+        self.search_button = None
+        self.delete_frame = None
         self.position_entry = None
         self.squad_entry = None
         self.additional_date_entry = None
@@ -36,7 +39,7 @@ class View:
 
     def create_widgets(self):
         self.player_tree = ttk.Treeview(self.root, columns=(
-            "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
+            "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
         self.player_tree.grid(row=0, column=0, padx=10, pady=10, columnspan=3)
 
         first_button = ttk.Button(self.root, text="First", command=lambda: self.controller.first_page("main"))
@@ -51,7 +54,7 @@ class View:
         last_button = ttk.Button(self.root, text="Last", command=lambda: self.controller.last_page("main"))
         last_button.grid(row=1, column=1, padx=(0, 0), pady=5, sticky="e")
 
-        headers = ["ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
+        headers = ["Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
         for header in headers:
             self.player_tree.heading(header, text=header)
 
@@ -70,6 +73,8 @@ class View:
         header_menu.add_cascade(label="Settings", menu=settings_menu)
         settings_menu.add_command(label="Players limit",
                                   command=self.show_players_limit_dialog)
+        settings_menu.add_command(label="Switch DB",
+                                  command=self.show_switch_db_dialog)
 
     def show_players_limit_dialog(self):
         # Create a dialog window
@@ -95,6 +100,25 @@ class View:
         # Create a button to confirm the limit
         confirm_button = ttk.Button(limit_dialog, text="Set Limit", command=set_players_limit)
         confirm_button.grid(row=1, column=0, columnspan=2, padx=10, pady=5)
+
+    def show_switch_db_dialog(self):
+        # Create a dialog window
+        self.switch_db_dialog = tk.Toplevel(self.root)
+        self.switch_db_dialog.title("Switch Database")
+
+        # Function to handle the database switch to XML
+        def switch_to_xml():
+            file_path = tk.filedialog.askopenfilename(title="Select XML File", filetypes=[("XML files", "*.xml")])
+            if file_path:
+                self.controller.switch_to_xml(file_path)
+
+        # Create buttons for MySQL and XML options
+        mysql_button = ttk.Button(self.switch_db_dialog, text="MySQL",
+                                  command=self.controller.switch_to_sql)
+        mysql_button.pack(pady=5)
+
+        xml_button = ttk.Button(self.switch_db_dialog, text="XML", command=switch_to_xml)
+        xml_button.pack(pady=5)
 
     def show_search_window(self):
         self.search_window = tk.Toplevel(self.root)
@@ -150,14 +174,15 @@ class View:
         self.toggle_additional_date_entry()
 
         self.search_result_tree = ttk.Treeview(search_frame, columns=(
-            "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
+            "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
         self.search_result_tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 
-        headers = ["ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
+        headers = ["Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
         for header in headers:
             self.search_result_tree.heading(header, text=header)
 
-        search_button = ttk.Button(search_frame, text="Search", command=lambda: self.controller.search_players("search"))
+        search_button = ttk.Button(search_frame, text="Search",
+                                   command=lambda: self.controller.search_players("search"))
         search_button.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
         first_button = ttk.Button(search_frame, text="First", command=lambda: self.controller.first_page("search"))
@@ -172,16 +197,6 @@ class View:
 
         last_button = ttk.Button(search_frame, text="Last", command=lambda: self.controller.last_page("search"))
         last_button.grid(row=3, column=1, padx=(0, 0), pady=5, sticky="e")
-
-    def update_delete_results(self, players):
-        for item in self.result_tree.get_children():
-            self.result_tree.delete(item)
-
-        if players:
-            for player in players:
-                self.result_tree.insert("", tk.END, values=player)
-        else:
-            self.result_tree.insert("", tk.END, values=["No players found."])
 
     def toggle_date_entry(self):
         if self.criteria.get() == "Birth Date":
@@ -226,7 +241,7 @@ class View:
 
         if players:
             for player in players:
-                self.search_result_tree.insert("", tk.END, values=player)
+                self.search_result_tree.insert("", tk.END, values=player.get_player_data())
         else:
             self.search_result_tree.insert("", tk.END, values=["No players found."])
 
@@ -237,10 +252,10 @@ class View:
         delete_window = tk.Toplevel(self.root)
         delete_window.title("Delete Players")
 
-        delete_frame = tk.Frame(delete_window)
-        delete_frame.pack(padx=10, pady=10)
+        self.delete_frame = tk.Frame(delete_window)
+        self.delete_frame.pack(padx=10, pady=10)
 
-        criteria_frame = tk.Frame(delete_frame)
+        criteria_frame = tk.Frame(self.delete_frame)
         criteria_frame.grid(row=0, column=0, columnspan=3, padx=10, pady=5, sticky="w")
 
         self.criteria = tk.StringVar()
@@ -261,7 +276,7 @@ class View:
         self.add_criteria_button = ttk.Button(criteria_frame, text="+", command=self.toggle_additional_criteria)
         self.add_criteria_button.grid(row=0, column=2, padx=10, pady=5)
 
-        self.additional_search_criteria_frame = tk.Frame(delete_frame)
+        self.additional_search_criteria_frame = tk.Frame(self.delete_frame)
 
         self.additional_search_entry = ttk.Entry(self.additional_search_criteria_frame, width=50)
         self.additional_search_entry.grid(row=0, column=0, padx=10, pady=5, sticky="w")
@@ -286,30 +301,32 @@ class View:
 
         self.toggle_additional_date_entry()
 
-        self.search_button = ttk.Button(criteria_frame, text="Search", command=lambda: self.controller.search_players("delete"))
+        self.search_button = ttk.Button(criteria_frame, text="Search",
+                                        command=lambda: self.controller.search_players("delete"))
         self.search_button.grid(row=0, column=3, padx=10, pady=5, sticky="e")
 
-        self.result_tree = ttk.Treeview(delete_frame, columns=(
-            "ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
+        self.result_tree = ttk.Treeview(self.delete_frame, columns=(
+            "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"), show="headings")
         self.result_tree.grid(row=2, column=0, columnspan=3, padx=10, pady=10)
 
-        headers = ["ID", "Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
+        headers = ["Full Name", "Birth Date", "Football Team", "Home City", "Squad", "Position"]
         for header in headers:
             self.result_tree.heading(header, text=header)
 
-        delete_button = ttk.Button(delete_frame, text="Delete", command=self.controller.delete_players)
+        delete_button = ttk.Button(self.delete_frame, text="Delete", command=self.controller.delete_players)
         delete_button.grid(row=0, column=2, padx=10, pady=5, sticky="e")
 
-        first_button = ttk.Button(delete_frame, text="First", command=lambda: self.controller.first_page("delete"))
+        first_button = ttk.Button(self.delete_frame, text="First", command=lambda: self.controller.first_page("delete"))
         first_button.grid(row=4, column=0, padx=(150, 200), pady=5, sticky="w")
 
-        prev_button = ttk.Button(delete_frame, text="Previous", command=lambda: self.controller.prev_page("delete"))
+        prev_button = ttk.Button(self.delete_frame, text="Previous",
+                                 command=lambda: self.controller.prev_page("delete"))
         prev_button.grid(row=4, column=0, padx=(0, 10), pady=5)
 
-        next_button = ttk.Button(delete_frame, text="Next", command=lambda: self.controller.next_page("delete"))
+        next_button = ttk.Button(self.delete_frame, text="Next", command=lambda: self.controller.next_page("delete"))
         next_button.grid(row=4, column=1, padx=(0, 10), pady=5)
 
-        last_button = ttk.Button(delete_frame, text="Last", command=lambda: self.controller.last_page("delete"))
+        last_button = ttk.Button(self.delete_frame, text="Last", command=lambda: self.controller.last_page("delete"))
         last_button.grid(row=4, column=1, padx=(0, 0), pady=5, sticky="e")
 
     def update_delete_results(self, players):
@@ -318,7 +335,7 @@ class View:
 
         if players:
             for player in players:
-                self.result_tree.insert("", tk.END, values=player)
+                self.result_tree.insert("", tk.END, values=player.get_player_data())
         else:
             self.result_tree.insert("", tk.END, values=["No players found."])
 
@@ -364,7 +381,7 @@ class View:
         add_button.grid(row=6, column=0, columnspan=2, padx=10, pady=5)  # corrected grid placement
 
     def show_players_tree(self):
-        players = self.controller.players_list.players
+        players = self.controller.get_all_players()
         # Create a new window to display the tree
         tree_window = tk.Toplevel(self.root)
         tree_window.title("Players Tree")
@@ -374,12 +391,10 @@ class View:
 
         # Assuming each player is represented by a tuple
         for player in players:
-            # Assuming the first element of the tuple is the player ID
-            player_id = player[0]
-            player_node = Node(str(player_id), parent=root_node)
+            player_node = Node(name=player.get_player_data()[0], parent=root_node)
             # Assuming the remaining elements of the tuple are player attributes
-            for index, value in enumerate(player[1:], start=1):
-                Node(f"Attribute {index}: {value}", parent=player_node)
+            for index, value in enumerate(player.get_player_data()[1:], start=1):
+                Node(value, parent=player_node)
 
         # Render the tree
         tree_str = ""
@@ -387,12 +402,15 @@ class View:
             tree_str += "%s%s\n" % (pre, node.name)
 
         # Display the tree in a text widget
-        tree_text = tk.Text(tree_window)
-        tree_text.insert(tk.END, tree_str)
-        tree_text.pack()
+        tree_frame = tk.Frame(tree_window)
+        tree_frame.pack(fill=tk.BOTH, expand=True)
 
-        # Optional: Add scrollbars if the tree is large
-        scrollbar = ttk.Scrollbar(tree_window, command=tree_text.yview)
+        tree_text = tk.Text(tree_frame)
+        tree_text.insert(tk.END, tree_str)
+        tree_text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add scrollbars if the tree is large
+        scrollbar = ttk.Scrollbar(tree_frame, command=tree_text.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         tree_text.config(yscrollcommand=scrollbar.set)
 
@@ -402,7 +420,7 @@ class View:
 
         if players:
             for player in players:
-                self.player_tree.insert("", tk.END, values=player)
+                self.player_tree.insert("", tk.END, values=player.get_player_data())
         else:
             self.player_tree.insert("", tk.END, values=["No players found."])
 

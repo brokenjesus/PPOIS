@@ -1,4 +1,4 @@
-class DBConfigs:
+class MySQLConfigs:
     HOST = "localhost"
     USER = "root"
     PASSWORD = "12345"
