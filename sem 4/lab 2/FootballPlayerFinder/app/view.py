@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 class View:
     def __init__(self, root, controller):
+        self.switch_db_dialog = None
         self.result_tree = None
         self.search_button = None
         self.delete_frame = None

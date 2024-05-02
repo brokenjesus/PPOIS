@@ -75,7 +75,7 @@ class XMLHandler(DBInterface):
         tree.write(self.path)
         return deleted_count
 
-    def search_players(self, criteria=None, offset=0, limit=None):
+    def search_players(self, criteria, offset=0, limit=None):
         try:
             tree = ET.parse(self.path)
         except FileNotFoundError:

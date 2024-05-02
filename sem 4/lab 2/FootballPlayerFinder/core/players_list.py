@@ -1,5 +1,5 @@
-from core.my_sql_handler import MySQLHandler
 from core.db_interface import DBInterface
+from core.my_sql_handler import MySQLHandler
 from core.player import Player
 from core.xml_handler import XMLHandler
 
@@ -22,15 +22,13 @@ class PlayersList:
     def fetch_players_from_db(self, limit=None, offset=0, search_criteria=None):
         if search_criteria is None:
             search_criteria = {}
-        players = self.db_handler.search_players(search_criteria, limit=limit, offset=offset)
+        players = self.db_handler.search_players(criteria=search_criteria, limit=limit, offset=offset)
 
         if players:
             self.players = players
-            print("Players successfully loaded.")
             return players
         else:
             self.players = None
-            print("The database does not contain players with this criteria.")
 
     def delete_player(self, search_criteria):
         deleted_players_count = self.db_handler.delete_players(search_criteria)

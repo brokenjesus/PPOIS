@@ -1,8 +1,5 @@
 from datetime import datetime
-from tkinter import messagebox, Toplevel, Label, ttk, filedialog
-
-import tk
-from anytree import Node, RenderTree
+from tkinter import messagebox, Toplevel, Label
 
 from app.view import View
 from core.players_list import PlayersList
@@ -15,18 +12,18 @@ class Controller:
 
     def switch_to_xml(self, file_path):
         self.players_list.switch_db_to_xml(file_path)
-        messagebox.showinfo("Switch Database", f"Switched to XML database: {file_path}")
-        __offset_search_page = 0
-        __offset_main_page = 0
+        self.__offset_search_page = 0
+        self.__offset_main_page = 0
         self.load_players()
+        messagebox.showinfo("Switch Database", f"Switched to XML database: {file_path}")
         self.view.switch_db_dialog.destroy()
 
     def switch_to_sql(self):
         self.players_list.switch_db_to_sql()
-        messagebox.showinfo("Switch Database", f"Switched to mySQL database")
-        __offset_search_page = 0
-        __offset_main_page = 0
+        self.__offset_search_page = 0
+        self.__offset_main_page = 0
         self.load_players()
+        messagebox.showinfo("Switch Database", f"Switched to mySQL database")
         self.view.switch_db_dialog.destroy()
 
     def __init__(self, root):
@@ -82,6 +79,7 @@ class Controller:
             players_deleted = self.players_list.delete_player(delete_criteria)
             if players_deleted > 0:
                 self.show_deleted_players_count(players_deleted)
+                self.__offset_main_page = 0
                 self.load_players()
             else:
                 self.show_deletion_error()
@@ -179,13 +177,16 @@ class Controller:
     def add_player(self):
         full_name = self.view.full_name_entry.get()
         birth_date = self.__convert_date_format(self.view.birth_date_entry.get())
-
         football_team = self.view.football_team_entry.get()
         home_city = self.view.home_city_entry.get()
         squad = self.view.squad_entry.get()
         position = self.view.position_entry.get()
-        self.players_list.add_player(full_name, birth_date, football_team, home_city, squad, position)
-        self.load_players()
+        if full_name and birth_date and football_team and home_city and squad and position:
+            self.players_list.add_player(full_name, birth_date, football_team, home_city, squad, position)
+            messagebox.showinfo("Player successfully added", f"PLayer {full_name} has been successfully added")
+            self.load_players()
+        else:
+            messagebox.showerror("Error", f"Fields are empty")
 
     def __load_first_search_page(self):
         if self.__offset_search_page > 0:
@@ -290,36 +291,3 @@ class Controller:
         result = messagebox.askokcancel("Confirm Deletion", "Are you sure you want to delete this players?",
                                         parent=self.view.delete_frame)
         return result
-
-    def show_players_tree(self):
-        players = self.players_list.players
-        # Create a new window to display the tree
-        tree_window = tk.Toplevel(self.view.root)
-        tree_window.title("Players Tree")
-
-        # Create a root node for the tree
-        root_node = Node("Players")
-
-        # Assuming each player is represented by a tuple
-        for player in players:
-            # Assuming the first element of the tuple is the player ID
-            player_id = player[0]
-            player_node = Node(str(player_id), parent=root_node)
-            # Assuming the remaining elements of the tuple are player attributes
-            for index, value in enumerate(player[1:], start=1):
-                Node(value, parent=player_node)
-
-        # Render the tree
-        tree_str = ""
-        for pre, fill, node in RenderTree(root_node):
-            tree_str += "%s%s\n" % (pre, node.name)
-
-        # Display the tree in a text widget
-        tree_text = tk.Text(tree_window)
-        tree_text.insert(tk.END, tree_str)
-        tree_text.pack()
-
-        # Optional: Add scrollbars if the tree is large
-        scrollbar = ttk.Scrollbar(tree_window, command=tree_text.yview)
-        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-        tree_text.config(yscrollcommand=scrollbar.set)

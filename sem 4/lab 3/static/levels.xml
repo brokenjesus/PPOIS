@@ -1,0 +1,35 @@
+<levels>
+    <level>
+        <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWW</row>
+        <row>BWWBWWBBBWWBWWBBBWWBWWBBBWWBWW</row>
+        <row>WWBWWBBBWWBWWBBBWWBWWBBBWWBWWB</row>
+        <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWWB</row>
+        <row>WWBWWBBBWWBWWBBWW BBBWWBWWB</row>
+        <row>WW WW   WW WW W    WW WWWWW</row>
+        <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWWB</row>
+    </level>
+<!--    <level>-->
+<!--        <row>             B</row>-->
+<!--    </level>-->
+    <level>
+        <row>B    BBB BBBB   </row>
+        <row>B   B   BB   B  </row>
+        <row>B   B BB WW  B   B</row>
+        <row>B WWWWWW  B BB   B  WW B</row>
+        <row>B   B BB  WW B   B</row>
+    </level>
+    <level>
+        <row>BWWWW  WWB  B  </row>
+        <row> B B B B </row>
+        <row>  B  WW WWB  </row>
+        <row> B B B B </row>
+        <row>B  WWWWB  B  </row>
+    </level>
+    <level>
+        <row>BB   BBWW  </row>
+        <row>WWB B B B B</row>
+        <row>B  B B  B</row>
+        <row>B     WW  B</row>
+        <row>BBBBBBBWWWWBB</row>
+    </level>
+</levels>

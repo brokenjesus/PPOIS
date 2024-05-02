@@ -1,7 +1,7 @@
 import mysql.connector
 
-from core.my_sql_configs import MySQLConfigs
 from core.db_interface import DBInterface
+from core.my_sql_configs import MySQLConfigs
 from core.player import Player
 
 
@@ -69,12 +69,12 @@ class MySQLHandler(MySQLConfigs, DBInterface):
         players = []
         for row in result:
             player = Player(
-                full_name=row[1],
-                birth_date=row[2].strftime("%Y-%m-%d"),
-                football_team=row[3],
-                home_city=row[4],
-                squad=row[5],
-                position=row[6]
+                full_name=row[0],
+                birth_date=row[1].strftime("%Y-%m-%d"),
+                football_team=row[2],
+                home_city=row[3],
+                squad=row[4],
+                position=row[5]
             )
             players.append(player)
 
