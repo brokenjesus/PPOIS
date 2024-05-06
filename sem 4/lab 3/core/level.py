@@ -9,6 +9,7 @@ from game_consts import *
 # Define the file paths for the XML file
 XML_FILE_PATH = "../static/levels.xml"
 
+
 # Function to read levels from XML file
 def read_levels_from_xml(file_path):
     levels = []
@@ -18,6 +19,7 @@ def read_levels_from_xml(file_path):
         rows = [row.text for row in level.findall('row')]
         levels.append(rows)
     return levels
+
 
 def create_level(level=None):
     if level is None:

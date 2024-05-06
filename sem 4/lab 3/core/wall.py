@@ -11,3 +11,6 @@ class Wall(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = (SCREEN_WIDTH - BRICK_WIDTH) // 2
         self.rect.y = (SCREEN_HEIGHT - BRICK_HEIGHT) // 2
+        self.can_brake = False
+    def set_break_true(self):
+        self.can_brake = True

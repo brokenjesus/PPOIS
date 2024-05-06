@@ -1,11 +1,9 @@
-import sys
-import pygame
-
 from core.records_manager import RecordsManager
 from game_consts import *
 
 # Initialize Pygame
 pygame.init()
+
 
 def level_completed_screen(level, time):
     screen.fill(BLACK)
@@ -34,7 +32,7 @@ def level_completed_screen(level, time):
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 waiting = False
-                show_menu()
+                return
 
 
 def show_save_record_screen(level, time):
@@ -71,17 +69,69 @@ def show_save_record_screen(level, time):
                         records.add_record(level, input_text, time)
                         return
                     elif event.key == pygame.K_BACKSPACE:
+                        # Удаление последнего символа из строки ввода
                         input_text = input_text[:-1]
+                    elif event.key in (
+                    pygame.KMOD_CTRL | pygame.K_v, pygame.KMOD_CTRL | pygame.K_c, pygame.KMOD_CTRL | pygame.K_x):
+                        # Отключаем комбинации Ctrl+C, Ctrl+V, Ctrl+X
+                        pass
                     else:
                         input_text += event.unicode
 
         # Отрисовка поля ввода
+        pygame.draw.rect(screen, BLACK, input_box)  # Очистка предыдущего текста
         pygame.draw.rect(screen, WHITE, input_box, 2)
         font_input = pygame.font.Font(None, 36)
         input_surface = font_input.render(input_text, True, WHITE)
         screen.blit(input_surface, (input_box.x + 5, input_box.y + 5))
 
         pygame.display.flip()
+
+
+def show_help_screen():
+    screen.fill(BLACK)
+
+    font = pygame.font.Font('../static/font.ttf', 24)
+    title_text = font.render("Arkanoid Help", True, WHITE)
+    title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
+    screen.blit(title_text, title_rect)
+
+    rules_text = [
+        "Welcome to Arkanoid!",
+        "Rules:",
+        "- Use the paddle to bounce the ball and break all the bricks.",
+        "- If the ball falls below the paddle, you lose a life.",
+        "- You have three lives to start with.",
+        "- Break all the bricks to advance to the next level.",
+        "- Some bricks may require multiple hits to break.",
+        "",
+        "Controls:",
+        "- Use the left and right arrow keys to move the paddle.",
+        "- Press spacebar to launch the ball at the beginning of each level.",
+        "",
+        "Press any key to return to the main menu."
+    ]
+
+    y_position = 100
+    for line in rules_text:
+        text_surface = font.render(line, True, WHITE)
+        text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, y_position))
+        screen.blit(text_surface, text_rect)
+        y_position += 30
+
+    pygame.display.flip()
+
+    # Ожидание нажатия любой клавиши
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                waiting = False
+                return
+
 
 def show_records_screen(records_manager):
     screen.fill(BLACK)
@@ -110,8 +160,21 @@ def show_records_screen(records_manager):
         pygame.display.flip()
 
 
+import pygame
+import sys
+
+# Определение констант
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+
 def show_menu():
-    screen.fill(BLACK)  # Очистка экрана
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Menu")
+
     font = pygame.font.Font('../static/font.ttf', 36)
 
     # Отображение каждого пункта меню
@@ -130,11 +193,21 @@ def show_menu():
                 for i, pos in enumerate(item_positions):
                     if rendered_items[i].get_rect(center=pos).collidepoint(mouse_pos):
                         return i  # Возвращает индекс выбранного пункта меню
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_1:
+                    return 0
+                elif event.key == pygame.K_2:
+                    return 1
+                elif event.key == pygame.K_3:
+                    return 2
+                elif event.key == pygame.K_0:
+                    return 3
 
         for i, item in enumerate(rendered_items):
             screen.blit(item, item_positions[i])  # Отображение пунктов меню на экране
 
         pygame.display.flip()
+
 
 def game_over_text():
     font = pygame.font.Font(None, 36)
@@ -143,4 +216,4 @@ def game_over_text():
     screen.blit(text, text_rect)
     pygame.display.flip()
     pygame.time.wait(2000)  # Подождать 2 секунды перед выходом
-    pygame.quit()
+    return

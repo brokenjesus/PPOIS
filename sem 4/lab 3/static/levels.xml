@@ -1,16 +1,13 @@
 <levels>
     <level>
         <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWW</row>
-        <row>BWWBWWBBBWWBWWBBBWWBWWBBBWWBWW</row>
-        <row>WWBWWBBBWWBWWBBBWWBWWBBBWWBWWB</row>
         <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWWB</row>
-        <row>WWBWWBBBWWBWWBBWW BBBWWBWWB</row>
         <row>WW WW   WW WW W    WW WWWWW</row>
-        <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWWB</row>
     </level>
-<!--    <level>-->
-<!--        <row>             B</row>-->
-<!--    </level>-->
+    <level>
+        <row> BBBBBBBB    BBBBB BBBBBBBB</row>
+        <row> BBBBBBBB    WW BBBBBBBB</row>
+    </level>
     <level>
         <row>B    BBB BBBB   </row>
         <row>B   B   BB   B  </row>

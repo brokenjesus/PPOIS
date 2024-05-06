@@ -13,6 +13,7 @@ PADDLE_SPEED = 15
 
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+PINK = (255,192,203)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
