@@ -1,6 +1,6 @@
 import random
 
-from core.game_screens import game_over_text
+from core.game_screens import show_game_over_text
 from game_consts import *
 
 class Ball(pygame.sprite.Sprite):

@@ -1,25 +1,28 @@
 import pygame
+import xml.etree.ElementTree as ET
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+tree = ET.parse('../static/game_consts.xml')
+root = tree.getroot()
+
+SCREEN_WIDTH = int(root.find('SCREEN_WIDTH').text)
+SCREEN_HEIGHT = int(root.find('SCREEN_HEIGHT').text)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-BRICK_WIDTH = 30
-BRICK_HEIGHT = 30
+BRICK_WIDTH = int(root.find('BRICK_WIDTH').text)
+BRICK_HEIGHT = int(root.find('BRICK_HEIGHT').text)
 
-PADDLE_WIDTH = 100
-PADDLE_HEIGHT = 20
-PADDLE_SPEED = 15
+PADDLE_WIDTH = int(root.find('PADDLE_WIDTH').text)
+PADDLE_HEIGHT = int(root.find('PADDLE_HEIGHT').text)
+PADDLE_SPEED = int(root.find('PADDLE_SPEED').text)
 
-WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-PINK = (255,192,203)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-BLACK = (0, 0, 0)
-GRAY = (150, 150, 150)
+WHITE = tuple(map(int, root.find('WHITE').text.split(',')))
+RED = tuple(map(int, root.find('RED').text.split(',')))
+PINK = tuple(map(int, root.find('PINK').text.split(',')))
+GREEN = tuple(map(int, root.find('GREEN').text.split(',')))
+BLUE = tuple(map(int, root.find('BLUE').text.split(',')))
+BLACK = tuple(map(int, root.find('BLACK').text.split(',')))
+GRAY = tuple(map(int, root.find('GRAY').text.split(',')))
 
-BALL_COLORS = [WHITE, RED, GREEN, BLUE]
+BALL_RADIUS = int(root.find('BALL_RADIUS').text)
+BALL_SPEED = int(root.find('BALL_SPEED').text)
 
-BALL_RADIUS = 5
-BALL_SPEED = 5

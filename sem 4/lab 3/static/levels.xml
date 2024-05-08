@@ -1,5 +1,8 @@
 <levels>
     <level>
+        <row>   W             B</row>
+    </level>
+    <level>
         <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWW</row>
         <row>BBBWWBWWBBBWWBWWBBBWWBWWBBBWWB</row>
         <row>WW WW   WW WW W    WW WWWWW</row>
@@ -16,17 +19,18 @@
         <row>B   B BB  WW B   B</row>
     </level>
     <level>
-        <row>BWWWW  WWB  B  </row>
-        <row> B B B B </row>
-        <row>  B  WW WWB  </row>
-        <row> B B B B </row>
-        <row>B  WWWWB  B  </row>
+        <row>   B    B    B    B    B   </row>
+        <row>B   B   B   B   B   B   B   </row>
+        <row> B   B   B   B   B   B   B  </row>
+        <row>  B   B   B   B   B   B   B </row>
+        <row>   B   B   B   B   B   B   B</row>
     </level>
     <level>
-        <row>BB   BBWW  </row>
-        <row>WWB B B B B</row>
-        <row>B  B B  B</row>
-        <row>B     WW  B</row>
-        <row>BBBBBBBWWWWBB</row>
+        <row>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</row>
+        <row>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</row>
+        <row>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBB</row>
+        <row>BBBBBBBBBBBBBBB BBBBBBBBBBBBB</row>
+        <row>BBBBBBBBBBBBBBB  BBBBBBBBB</row>
+        <row>BBBBBBBBBBBBBBB   BBBBBBBB</row>
     </level>
 </levels>

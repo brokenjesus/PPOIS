@@ -1,11 +1,58 @@
 from core.records_manager import RecordsManager
 from game_consts import *
 
-# Initialize Pygame
+import pygame
+import sys
+
 pygame.init()
 
 
-def level_completed_screen(level, time):
+def show_select_level():
+    levels = list(range(0, 10))
+    selected_level_index = 0  # Default to the first level
+    selected_level = levels[selected_level_index]
+    while True:
+        screen.fill(BLACK)
+        font = pygame.font.Font('../static/font.ttf', 36)
+        title_text = font.render("Select Level", True, WHITE)
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        screen.blit(title_text, title_rect)
+
+        level_text = [font.render(f"Level {i+1}", True, WHITE) for i in levels]
+        level_positions = [(SCREEN_WIDTH // 2, 200 + i * 50) for i in range(len(levels))]
+
+        for i, item in enumerate(level_text):
+            if i == selected_level_index:  # Highlight the selected level in red
+                item = font.render(f"Level {i + 1}", True, RED)
+            screen.blit(item, level_positions[i])
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                for i, pos in enumerate(level_positions):
+                    if level_text[i].get_rect(center=pos).collidepoint(mouse_pos):
+                        selected_level_index = i
+                        selected_level = levels[selected_level_index]
+                        return selected_level
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    return selected_level  # Return the selected level
+                elif event.key == pygame.K_UP:
+                    selected_level_index = (selected_level_index - 1) % len(levels)
+                    selected_level = levels[selected_level_index]
+                elif event.key == pygame.K_DOWN:
+                    selected_level_index = (selected_level_index + 1) % len(levels)
+                    selected_level = levels[selected_level_index]
+                elif event.key == pygame.K_RETURN:
+                    return selected_level
+
+
+def show_level_completed_screen(level, time):
     screen.fill(BLACK)
 
     font = pygame.font.Font('../static/font.ttf', 36)
@@ -72,9 +119,9 @@ def show_save_record_screen(level, time):
                         # Удаление последнего символа из строки ввода
                         input_text = input_text[:-1]
                     elif event.key in (
-                    pygame.KMOD_CTRL | pygame.K_v, pygame.KMOD_CTRL | pygame.K_c, pygame.KMOD_CTRL | pygame.K_x):
-                        # Отключаем комбинации Ctrl+C, Ctrl+V, Ctrl+X
+                            pygame.KMOD_CTRL | pygame.K_v, pygame.KMOD_CTRL | pygame.K_c, pygame.KMOD_CTRL | pygame.K_x):
                         pass
+                        # Отключаем комбинации Ctrl+C, Ctrl+V, Ctrl+X
                     else:
                         input_text += event.unicode
 
@@ -100,14 +147,19 @@ def show_help_screen():
         "Welcome to Arkanoid!",
         "Rules:",
         "- Use the paddle to bounce the ball and break all the bricks.",
-        "- If the ball falls below the paddle, you lose a life.",
-        "- You have three lives to start with.",
-        "- Break all the bricks to advance to the next level.",
-        "- Some bricks may require multiple hits to break.",
+        "- If the ball falls below the paddle, you lose.",
+        "- Break all the bricks to win the level.",
         "",
         "Controls:",
         "- Use the left and right arrow keys to move the paddle.",
-        "- Press spacebar to launch the ball at the beginning of each level.",
+        "",
+        "Modifiers:",
+        "- After destroying a certain number of bricks, there's a chance of getting an modifier to the game.",
+        "- Extra Ball"
+        "- Paddle Size Increase"
+        "- Ball that multiply your balls by 2"
+        "- Meteorite, that can brake your paddle"
+        "- Bullet Shot, that can break whole column of bricks or damage the wall"
         "",
         "Press any key to return to the main menu."
     ]
@@ -160,16 +212,6 @@ def show_records_screen(records_manager):
         pygame.display.flip()
 
 
-import pygame
-import sys
-
-# Определение констант
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-
-
 def show_menu():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -209,11 +251,12 @@ def show_menu():
         pygame.display.flip()
 
 
-def game_over_text():
-    font = pygame.font.Font(None, 36)
-    text = font.render("Game Over :(", True, RED)
-    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    screen.blit(text, text_rect)
-    pygame.display.flip()
+def show_game_over_text():
+    font = pygame.font.Font('../static/font.ttf', 72)  # Загружаем шрифт
+    text = font.render("Game Over :(", True, RED)  # Создаем текст
+    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))  # Выравниваем текст по центру экрана
+    screen.blit(text, text_rect)  # Отображаем текст на экране
+    pygame.display.flip()  # Обновляем экран
     pygame.time.wait(2000)  # Подождать 2 секунды перед выходом
     return
+
