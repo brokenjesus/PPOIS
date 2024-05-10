@@ -13,13 +13,13 @@ def show_select_level():
     selected_level = levels[selected_level_index]
     while True:
         screen.fill(BLACK)
-        font = pygame.font.Font('../static/font.ttf', 36)
+        font = pygame.font.Font('../static/font.ttf', 28)
         title_text = font.render("Select Level", True, WHITE)
-        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 100))
+        title_rect = title_text.get_rect(center=(SCREEN_WIDTH // 2, 50))
         screen.blit(title_text, title_rect)
 
         level_text = [font.render(f"Level {i+1}", True, WHITE) for i in levels]
-        level_positions = [(SCREEN_WIDTH // 2, 200 + i * 50) for i in range(len(levels))]
+        level_positions = [(SCREEN_WIDTH // 2, 100 + i * 50) for i in range(len(levels))]
 
         for i, item in enumerate(level_text):
             if i == selected_level_index:  # Highlight the selected level in red
@@ -217,7 +217,7 @@ def show_menu():
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Menu")
 
-    font = pygame.font.Font('../static/font.ttf', 36)
+    font = pygame.font.Font('../static/font.ttf', 30)
 
     # Отображение каждого пункта меню
     menu_items = ["1. Start game", "2. High score table", "3. Help", "0. Exit"]

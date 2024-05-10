@@ -11,10 +11,8 @@ from core.meteor import Meteor
 from core.music_handler import MusicHandler
 from game_consts import *
 
-# Инициализация Pygame
 pygame.mixer.init()
 
-# Загрузка звукового файла
 barabara_sound = pygame.mixer.Sound('../static/sounds/barabara.mp3')
 sad_sound = pygame.mixer.Sound('../static/sounds/sad.mp3')
 
@@ -76,7 +74,7 @@ class Collision:
 
             if ball.rect.right >= SCREEN_WIDTH - BALL_SPEED:
                 ball.rect.right = SCREEN_WIDTH - 1
-                ball.speed_x = -1*BALL_SPEED
+                ball.speed_x = -1 * BALL_SPEED
 
             if ball.rect.top <= BALL_SPEED:
                 ball.rect.top = 1
@@ -96,10 +94,10 @@ class Collision:
                 brick_bottom_edge = brick_hit.rect.bottom
 
                 if ball.rect.bottom <= brick_top_edge + BALL_SPEED or ball.rect.top >= brick_bottom_edge - BALL_SPEED:
-                    if brick_top_edge < ball.rect.bottom:
-                        ball.rect.top = brick_bottom_edge + 1
-                    else:
-                        ball.rect.bottom = brick_top_edge - 1
+                    # if brick_top_edge < ball.rect.bottom:
+                    #     ball.rect.top = brick_bottom_edge + 1
+                    # else:
+                    #     ball.rect.bottom = brick_top_edge - 1
 
                     ball.speed_y *= -1
                 # Проверяем столкновение с боковой стеной
@@ -112,13 +110,12 @@ class Collision:
 
                     if ball.speed_x > 0:
                         ball.speed_x = BALL_SPEED * -1
-                        ball.rect.right = brick_left_edge - 1
-                        print("teleport to left")
+                        # ball.rect.right = brick_left_edge - 1
+                        # print("teleport to left")
                     else:
                         ball.speed_x = BALL_SPEED
-                        ball.rect.left = brick_right_edge + 1
-                        print("teleport to right")
-
+                        # ball.rect.left = brick_right_edge + 1
+                        # print("teleport to right")
 
             if pygame.sprite.collide_rect(ball, paddle):
                 wall_left_edge = paddle.rect.left
@@ -139,7 +136,7 @@ class Collision:
                     # ball.speed_x *= -1
                     if ball.rect.centerx > paddle.rect.centerx:
                         ball.rect.left = paddle.rect.right + PADDLE_SPEED + BALL_SPEED
-                        ball.rect.bottom = paddle.rect.top+1
+                        ball.rect.bottom = paddle.rect.top + 1
                         ball.speed_x = BALL_SPEED
                     else:
                         ball.rect.centerx = paddle.rect.left - PADDLE_SPEED - BALL_SPEED
@@ -162,9 +159,9 @@ class Collision:
 
                 if ball.rect.bottom <= wall_top_edge + BALL_SPEED or ball.rect.top >= wall_bottom_edge - BALL_SPEED:
                     if wall_top_edge < ball.rect.bottom:
-                        ball.rect.top = wall_bottom_edge - 1
+                        ball.rect.top = wall_bottom_edge + 1
                     else:
-                        ball.rect.bottom = wall_top_edge + 1
+                        ball.rect.bottom = wall_top_edge - 1
                     ball.speed_y *= -1
                 # Проверяем столкновение с боковой стеной
                 elif ball.rect.right >= wall_left_edge - BALL_SPEED and ball.rect.left <= wall_right_edge + BALL_SPEED:
